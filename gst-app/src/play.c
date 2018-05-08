@@ -45,32 +45,47 @@ void
 play_uri (const gchar * uri)
 {
   GstStateChangeReturn sret;
-  GstElement *playbin;
-  GstElement *audiosink;
-  GstElement *videosink;
+  GstElement *playbin, *audiosink, *videosink, *videoflip, *myfilter, *filter_bin;
+  GstPad *pad, *ghost_pad;
   GstMessage *msg = NULL;
   GstBus *bus;
 
   g_print ("Trying to play %s ...\n", uri);
 
   playbin = gst_element_factory_make ("playbin", "playbin");
-  if (playbin == NULL)
-    goto no_playbin;
+  if (playbin == NULL) goto no_playbin;
 
   /* get playbin's bus - we'll watch it for messages */
   bus = gst_pipeline_get_bus (GST_PIPELINE (playbin));
 
   /* set audio sink */
   audiosink = gst_element_factory_make ("autoaudiosink", "audiosink");
-  if (audiosink == NULL)
-    goto no_autoaudiosink;
+  if (audiosink == NULL) goto no_autoaudiosink;
   g_object_set (playbin, "audio-sink", audiosink, NULL);
 
   /* set video sink */
   videosink = gst_element_factory_make ("autovideosink", "videosink");
-  if (videosink == NULL)
-    goto no_autovideosink;
+  if (videosink == NULL) goto no_autovideosink;
   g_object_set (playbin, "video-sink", videosink, NULL);
+
+  videoflip = gst_element_factory_make("videoflip", "videoflip");
+  if(videoflip == NULL) goto no_videoflip;
+  
+  myfilter = gst_element_factory_make("myfilter", "myfilter");
+  if(myfilter == NULL) goto no_myfilter;
+
+  filter_bin = gst_bin_new("video_sink_bin");
+  gst_bin_add_many(GST_BIN (filter_bin), videoflip, myfilter, NULL);
+  gst_element_link_many(videoflip, myfilter, NULL);
+  pad = gst_element_get_static_pad(videoflip, "sink");
+  ghost_pad = gst_ghost_pad_new("sink", pad);
+  gst_pad_set_active(ghost_pad, TRUE);
+  gst_element_add_pad(filter_bin,ghost_pad);
+  gst_object_unref(pad);
+
+  g_object_set(videoflip, "video-direction", 2, NULL);
+  g_object_set(playbin, "video-filter", filter_bin, NULL);
+
 
   /* set URI to play back */
   g_object_set (playbin, "uri", uri, NULL);
@@ -170,6 +185,20 @@ no_autoaudiosink:
 no_autovideosink:
   {
     g_error ("Could not create GStreamer 'autovideosink' element. "
+        "Please install it");
+    /* not reached, g_error aborts */
+    return;
+  }
+no_videoflip:
+  {
+    g_error ("Could not create GStreamer 'videoflip' element. "
+        "Please install it");
+    /* not reached, g_error aborts */
+    return;
+  }
+no_myfilter:
+  {
+    g_error ("Could not create GStreamer 'myfilter' element. "
         "Please install it");
     /* not reached, g_error aborts */
     return;
