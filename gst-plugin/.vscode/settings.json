@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "gstpreencfilter.h": "c",
+        "gst.h": "c",
+        "type_traits": "c"
+    }
+}
