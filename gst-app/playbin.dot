@@ -1,0 +1,36 @@
+digraph pipeline {
+  rankdir=LR;
+  fontname="sans";
+  fontsize="10";
+  labelloc=t;
+  nodesep=.1;
+  ranksep=.2;
+  label="<GstPlayBin>\nplaybin\n[0]\nuri=\"file:///media/sf_dev/gstprototype/gst-app/sintel_trailer-480p.webm\"\naudio-sink=(GstAutoAudioSink) audiosink\nvideo-sink=(GstAutoVideoSink) videosink\nvideo-filter=(GstMyFilter) myfilter";
+  node [style="filled,rounded", shape=box, fontsize="9", fontname="sans", margin="0.0,0.0"];
+  edge [labelfontsize="6", fontsize="9", fontname="monospace"];
+  
+  legend [
+    pos="0,0!",
+    margin="0.05,0.05",
+    style="filled",
+    label="Legend\lElement-States: [~] void-pending, [0] null, [-] ready, [=] paused, [>] playing\lPad-Activation: [-] none, [>] push, [<] pull\lPad-Flags: [b]locked, [f]lushing, [b]locking, [E]OS; upper-case is set\lPad-Task: [T] has started task, [t] has paused task\l",
+  ];
+  subgraph cluster_playsink_0x55ea7c228320 {
+    fontname="Bitstream Vera Sans";
+    fontsize="8";
+    style="filled,rounded";
+    color=black;
+    label="GstPlaySink\nplaysink\n[0]\nparent=(GstPlayBin) playbin\nflags=video+audio+text+soft-volume+deinterlace+soft-colorbalance\nvideo-sink=(GstAutoVideoSink) videosink\naudio-sink=(GstAutoAudioSink) audiosink\nsend-event-mode=first\nvideo-filter=(GstMyFilter) myfilter";
+    fillcolor="#ffffff";
+    subgraph cluster_streamsynchronizer0_0x55ea7c22a020 {
+      fontname="Bitstream Vera Sans";
+      fontsize="8";
+      style="filled,rounded";
+      color=black;
+      label="GstStreamSynchronizer\nstreamsynchronizer0\n[0]\nparent=(GstPlaySink) playsink";
+      fillcolor="#ffffff";
+    }
+
+  }
+
+}

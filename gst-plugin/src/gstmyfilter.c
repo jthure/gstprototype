@@ -105,14 +105,14 @@ static void gst_my_filter_set_property (GObject * object, guint prop_id,
 static void gst_my_filter_get_property (GObject * object, guint prop_id,
     GValue * value, GParamSpec * pspec);
 
-static gboolean gst_my_filter_sink_event (GstPad * pad, GstObject * parent, GstEvent * event);
+// static gboolean gst_my_filter_sink_event (GstPad * pad, GstObject * parent, GstEvent * event);
 // static GstFlowReturn gst_my_filter_chain (GstPad * pad, GstObject * parent, GstBuffer * buf);
 // static GstFlowReturn gst_my_filter_transform(GstBaseTransform *trans, GstBuffer *in_buf, GstBuffer *outBuf);
-static GstFlowReturn gst_my_filtertransform_ip(GstBaseTransform *trans, GstBuffer *buf);
+static GstFlowReturn gst_my_filter_transform_ip(GstBaseTransform *trans, GstBuffer *buf);
     /* GObject vmethod implementations */
 
     /* initialize the myfilter's class */
-    static void gst_my_filter_class_init(GstMyFilterClass *klass)
+static void gst_my_filter_class_init(GstMyFilterClass *klass)
 {
   GObjectClass *gobject_class;
   GstElementClass *gstelement_class;
@@ -147,6 +147,7 @@ static GstFlowReturn gst_my_filtertransform_ip(GstBaseTransform *trans, GstBuffe
 static void
 gst_my_filter_init (GstMyFilter * filter)
 {
+  GST_INFO_OBJECT(filter, "Initializing plugin");
   // filter->sinkpad = gst_pad_new_from_static_template (&sink_factory, "sink");
   // gst_pad_set_event_function (filter->sinkpad,
   //                             GST_DEBUG_FUNCPTR(gst_my_filter_sink_event));
@@ -160,6 +161,7 @@ gst_my_filter_init (GstMyFilter * filter)
   // gst_element_add_pad (GST_ELEMENT (filter), filter->srcpad);
 
   filter->silent = FALSE;
+
 }
 
 static void
@@ -197,35 +199,35 @@ gst_my_filter_get_property (GObject * object, guint prop_id,
 /* GstElement vmethod implementations */
 
 /* this function handles sink events */
-static gboolean
-gst_my_filter_sink_event (GstPad * pad, GstObject * parent, GstEvent * event)
-{
-  GstMyFilter *filter;
-  gboolean ret;
+// static gboolean
+// gst_my_filter_sink_event (GstPad * pad, GstObject * parent, GstEvent * event)
+// {
+//   GstMyFilter *filter;
+//   gboolean ret;
 
-  filter = GST_MYFILTER (parent);
+//   filter = GST_MYFILTER (parent);
 
-  GST_LOG_OBJECT (filter, "Received %s event: %" GST_PTR_FORMAT,
-      GST_EVENT_TYPE_NAME (event), event);
+//   GST_LOG_OBJECT (filter, "Received %s event: %" GST_PTR_FORMAT,
+//       GST_EVENT_TYPE_NAME (event), event);
 
-  switch (GST_EVENT_TYPE (event)) {
-    case GST_EVENT_CAPS:
-    {
-      GstCaps * caps;
+//   switch (GST_EVENT_TYPE (event)) {
+//     case GST_EVENT_CAPS:
+//     {
+//       GstCaps * caps;
 
-      gst_event_parse_caps (event, &caps);
-      /* do something with the caps */
+//       gst_event_parse_caps (event, &caps);
+//       /* do something with the caps */
 
-      /* and forward */
-      ret = gst_pad_event_default (pad, parent, event);
-      break;
-    }
-    default:
-      ret = gst_pad_event_default (pad, parent, event);
-      break;
-  }
-  return ret;
-}
+//       /* and forward */
+//       ret = gst_pad_event_default (pad, parent, event);
+//       break;
+//     }
+//     default:
+//       ret = gst_pad_event_default (pad, parent, event);
+//       break;
+//   }
+//   return ret;
+// }
 
 // static GstFlowReturn gst_my_filter_transform(GstBaseTransform *trans, GstBuffer *in_buf, GstBuffer *outBuf){
 //   GstMyFilter *filter = GST_MYFILTER(trans);
