@@ -47,6 +47,7 @@
 #define __GST_MYFILTER_H__
 
 #include <gst/gst.h>
+#include <gstreamer-1.0/gst/base/gstbasetransform.h>
 
 G_BEGIN_DECLS
 
@@ -67,7 +68,7 @@ typedef struct _GstMyFilterClass GstMyFilterClass;
 
 struct _GstMyFilter
 {
-  GstElement element;
+  GstBaseTransform element;
 
   GstPad *sinkpad, *srcpad;
 
@@ -76,7 +77,7 @@ struct _GstMyFilter
 
 struct _GstMyFilterClass 
 {
-  GstElementClass parent_class;
+  GstBaseTransformClass parent_class;
 };
 
 GType gst_my_filter_get_type (void);

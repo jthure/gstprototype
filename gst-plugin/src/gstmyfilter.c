@@ -61,6 +61,7 @@
 #endif
 
 #include <gst/gst.h>
+#include <gstreamer-1.0/gst/base/gstbasetransform.h>
 
 #include "gstmyfilter.h"
 
@@ -97,7 +98,7 @@ static GstStaticPadTemplate src_factory = GST_STATIC_PAD_TEMPLATE ("src",
     );
 
 #define gst_my_filter_parent_class parent_class
-G_DEFINE_TYPE (GstMyFilter, gst_my_filter, GST_TYPE_ELEMENT);
+G_DEFINE_TYPE (GstMyFilter, gst_my_filter, GST_TYPE_BASE_TRANSFORM);
 
 static void gst_my_filter_set_property (GObject * object, guint prop_id,
     const GValue * value, GParamSpec * pspec);
@@ -105,13 +106,13 @@ static void gst_my_filter_get_property (GObject * object, guint prop_id,
     GValue * value, GParamSpec * pspec);
 
 static gboolean gst_my_filter_sink_event (GstPad * pad, GstObject * parent, GstEvent * event);
-static GstFlowReturn gst_my_filter_chain (GstPad * pad, GstObject * parent, GstBuffer * buf);
+// static GstFlowReturn gst_my_filter_chain (GstPad * pad, GstObject * parent, GstBuffer * buf);
+// static GstFlowReturn gst_my_filter_transform(GstBaseTransform *trans, GstBuffer *in_buf, GstBuffer *outBuf);
+static GstFlowReturn gst_my_filtertransform_ip(GstBaseTransform *trans, GstBuffer *buf);
+    /* GObject vmethod implementations */
 
-/* GObject vmethod implementations */
-
-/* initialize the myfilter's class */
-static void
-gst_my_filter_class_init (GstMyFilterClass * klass)
+    /* initialize the myfilter's class */
+    static void gst_my_filter_class_init(GstMyFilterClass *klass)
 {
   GObjectClass *gobject_class;
   GstElementClass *gstelement_class;
@@ -146,17 +147,17 @@ gst_my_filter_class_init (GstMyFilterClass * klass)
 static void
 gst_my_filter_init (GstMyFilter * filter)
 {
-  filter->sinkpad = gst_pad_new_from_static_template (&sink_factory, "sink");
-  gst_pad_set_event_function (filter->sinkpad,
-                              GST_DEBUG_FUNCPTR(gst_my_filter_sink_event));
-  gst_pad_set_chain_function (filter->sinkpad,
-                              GST_DEBUG_FUNCPTR(gst_my_filter_chain));
-  GST_PAD_SET_PROXY_CAPS (filter->sinkpad);
-  gst_element_add_pad (GST_ELEMENT (filter), filter->sinkpad);
+  // filter->sinkpad = gst_pad_new_from_static_template (&sink_factory, "sink");
+  // gst_pad_set_event_function (filter->sinkpad,
+  //                             GST_DEBUG_FUNCPTR(gst_my_filter_sink_event));
+  // gst_pad_set_chain_function (filter->sinkpad,
+  //                             GST_DEBUG_FUNCPTR(gst_my_filter_chain));
+  // GST_PAD_SET_PROXY_CAPS (filter->sinkpad);
+  // gst_element_add_pad (GST_ELEMENT (filter), filter->sinkpad);
 
-  filter->srcpad = gst_pad_new_from_static_template (&src_factory, "src");
-  GST_PAD_SET_PROXY_CAPS (filter->srcpad);
-  gst_element_add_pad (GST_ELEMENT (filter), filter->srcpad);
+  // filter->srcpad = gst_pad_new_from_static_template (&src_factory, "src");
+  // GST_PAD_SET_PROXY_CAPS (filter->srcpad);
+  // gst_element_add_pad (GST_ELEMENT (filter), filter->srcpad);
 
   filter->silent = FALSE;
 }
@@ -226,22 +227,37 @@ gst_my_filter_sink_event (GstPad * pad, GstObject * parent, GstEvent * event)
   return ret;
 }
 
+// static GstFlowReturn gst_my_filter_transform(GstBaseTransform *trans, GstBuffer *in_buf, GstBuffer *outBuf){
+//   GstMyFilter *filter = GST_MYFILTER(trans);
+//   if(!filter->silent) g_print("I'm in the transform function\n");
+
+//   return GST_FLOW_OK;
+// }
+
+static GstFlowReturn gst_my_filter_transform_ip(GstBaseTransform *trans, GstBuffer *buf){
+  GstMyFilter *filter = GST_MYFILTER(trans);
+  // if (!filter->silent)
+  g_print("I'm in the transform function\n");
+
+  return GST_FLOW_OK;
+}
+
 /* chain function
  * this function does the actual processing
  */
-static GstFlowReturn
-gst_my_filter_chain (GstPad * pad, GstObject * parent, GstBuffer * buf)
-{
-  GstMyFilter *filter;
+// static GstFlowReturn
+// gst_my_filter_chain (GstPad * pad, GstObject * parent, GstBuffer * buf)
+// {
+//   GstMyFilter *filter;
 
-  filter = GST_MYFILTER (parent);
+//   filter = GST_MYFILTER (parent);
 
-  if (!filter->silent)
-    g_print ("I'm plugged, therefore I'm in.\n");
+//   if (!filter->silent)
+//     g_print ("I'm plugged, therefore I'm in.\n");
 
-  /* just push out the incoming buffer without touching it */
-  return gst_pad_push (filter->srcpad, buf);
-}
+//   /* just push out the incoming buffer without touching it */
+//   return gst_pad_push (filter->srcpad, buf);
+// }
 
 
 /* entry point to initialize the plug-in

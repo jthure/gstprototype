@@ -68,23 +68,23 @@ play_uri (const gchar * uri)
   if (videosink == NULL) goto no_autovideosink;
   g_object_set (playbin, "video-sink", videosink, NULL);
 
-  videoflip = gst_element_factory_make("videoflip", "videoflip");
-  if(videoflip == NULL) goto no_videoflip;
+  // videoflip = gst_element_factory_make("videoflip", "videoflip");
+  // if(videoflip == NULL) goto no_videoflip;
   
   myfilter = gst_element_factory_make("myfilter", "myfilter");
   if(myfilter == NULL) goto no_myfilter;
 
-  filter_bin = gst_bin_new("video_sink_bin");
-  gst_bin_add_many(GST_BIN (filter_bin), videoflip, myfilter, NULL);
-  gst_element_link_many(videoflip, myfilter, NULL);
-  pad = gst_element_get_static_pad(videoflip, "sink");
-  ghost_pad = gst_ghost_pad_new("sink", pad);
-  gst_pad_set_active(ghost_pad, TRUE);
-  gst_element_add_pad(filter_bin,ghost_pad);
-  gst_object_unref(pad);
+  // filter_bin = gst_bin_new("video_sink_bin");
+  // gst_bin_add_many(GST_BIN (filter_bin), videoflip, myfilter, NULL);
+  // gst_element_link_many(videoflip, myfilter, NULL);
+  // pad = gst_element_get_static_pad(videoflip, "sink");
+  // ghost_pad = gst_ghost_pad_new("sink", pad);
+  // gst_pad_set_active(ghost_pad, TRUE);
+  // gst_element_add_pad(filter_bin,ghost_pad);
+  // gst_object_unref(pad);
 
-  g_object_set(videoflip, "video-direction", 2, NULL);
-  g_object_set(playbin, "video-filter", filter_bin, NULL);
+  // g_object_set(videoflip, "video-direction", 2, NULL);
+  g_object_set(playbin, "video-filter", myfilter, NULL);
 
 
   /* set URI to play back */

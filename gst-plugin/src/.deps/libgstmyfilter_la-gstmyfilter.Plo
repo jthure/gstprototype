@@ -238,7 +238,9 @@ libgstmyfilter_la-gstmyfilter.lo: gstmyfilter.c \
  /usr/include/gstreamer-1.0/gst/gsttypefindfactory.h \
  /usr/include/gstreamer-1.0/gst/gstutils.h \
  /usr/include/gstreamer-1.0/gst/gstparse.h \
- /usr/include/gstreamer-1.0/gst/gstcompat.h gstmyfilter.h
+ /usr/include/gstreamer-1.0/gst/gstcompat.h \
+ /usr/include/gstreamer-1.0/gst/base/gstbasetransform.h \
+ /usr/include/gstreamer-1.0/gst/base/base-prelude.h gstmyfilter.h
 
 /usr/include/stdc-predef.h:
 
@@ -775,5 +777,9 @@ libgstmyfilter_la-gstmyfilter.lo: gstmyfilter.c \
 /usr/include/gstreamer-1.0/gst/gstparse.h:
 
 /usr/include/gstreamer-1.0/gst/gstcompat.h:
+
+/usr/include/gstreamer-1.0/gst/base/gstbasetransform.h:
+
+/usr/include/gstreamer-1.0/gst/base/base-prelude.h:
 
 gstmyfilter.h:
