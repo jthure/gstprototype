@@ -132,23 +132,13 @@ am__uninstall_files_from_dir = { \
 am__installdirs = "$(DESTDIR)$(plugindir)"
 LTLIBRARIES = $(plugin_LTLIBRARIES)
 am__DEPENDENCIES_1 =
-libgstaudiofilterexample_la_DEPENDENCIES = $(am__DEPENDENCIES_1)
-am_libgstaudiofilterexample_la_OBJECTS =  \
-	libgstaudiofilterexample_la-gstaudiofilter.lo
-libgstaudiofilterexample_la_OBJECTS =  \
-	$(am_libgstaudiofilterexample_la_OBJECTS)
+libgstmyfilter_la_DEPENDENCIES = $(am__DEPENDENCIES_1)
+am_libgstmyfilter_la_OBJECTS = libgstmyfilter_la-gstmyfilter.lo
+libgstmyfilter_la_OBJECTS = $(am_libgstmyfilter_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-libgstaudiofilterexample_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
-	$(libgstaudiofilterexample_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) \
-	--mode=link $(CCLD) $(libgstaudiofilterexample_la_CFLAGS) \
-	$(CFLAGS) $(libgstaudiofilterexample_la_LDFLAGS) $(LDFLAGS) -o \
-	$@
-libgstmyfilter_la_DEPENDENCIES = $(am__DEPENDENCIES_1)
-am_libgstmyfilter_la_OBJECTS = libgstmyfilter_la-gstmyfilter.lo
-libgstmyfilter_la_OBJECTS = $(am_libgstmyfilter_la_OBJECTS)
 libgstmyfilter_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
 	$(libgstmyfilter_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link \
 	$(CCLD) $(libgstmyfilter_la_CFLAGS) $(CFLAGS) \
@@ -187,10 +177,8 @@ AM_V_CCLD = $(am__v_CCLD_$(V))
 am__v_CCLD_ = $(am__v_CCLD_$(AM_DEFAULT_VERBOSITY))
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(libgstaudiofilterexample_la_SOURCES) \
-	$(libgstmyfilter_la_SOURCES)
-DIST_SOURCES = $(libgstaudiofilterexample_la_SOURCES) \
-	$(libgstmyfilter_la_SOURCES)
+SOURCES = $(libgstmyfilter_la_SOURCES)
+DIST_SOURCES = $(libgstmyfilter_la_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -347,7 +335,7 @@ top_srcdir = ..
 ##############################################################################
 # TODO: change libgstplugin.la to something else, e.g. libmysomething.la     #
 ##############################################################################
-plugin_LTLIBRARIES = libgstmyfilter.la libgstaudiofilterexample.la
+plugin_LTLIBRARIES = libgstmyfilter.la
 
 ##############################################################################
 # TODO: for the next set of variables, name the prefix if you named the .la, #
@@ -361,19 +349,19 @@ plugin_LTLIBRARIES = libgstmyfilter.la libgstaudiofilterexample.la
 libgstmyfilter_la_SOURCES = gstmyfilter.c gstmyfilter.h
 
 # compiler and linker flags used to compile this plugin, set in configure.ac
-libgstmyfilter_la_CFLAGS = $(GST_CFLAGS)
+libgstmyfilter_la_CFLAGS = $(GST_CFLAGS) -L./libcharmembedapi
 libgstmyfilter_la_LIBADD = $(GST_LIBS)
 libgstmyfilter_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstmyfilter_la_LIBTOOLFLAGS = --tag=disable-static
 
 # sources used to compile this plug-in
-libgstaudiofilterexample_la_SOURCES = gstaudiofilter.c
+# libgstaudiofilterexample_la_SOURCES = gstaudiofilter.c
 
-# compiler and linker flags used to compile this plugin, set in configure.ac
-libgstaudiofilterexample_la_CFLAGS = $(GST_CFLAGS)
-libgstaudiofilterexample_la_LIBADD = $(GST_LIBS)
-libgstaudiofilterexample_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
-libgstaudiofilterexample_la_LIBTOOLFLAGS = --tag=disable-static
+# # compiler and linker flags used to compile this plugin, set in configure.ac
+# libgstaudiofilterexample_la_CFLAGS = $(GST_CFLAGS)
+# libgstaudiofilterexample_la_LIBADD = $(GST_LIBS)
+# libgstaudiofilterexample_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
+# libgstaudiofilterexample_la_LIBTOOLFLAGS = --tag=disable-static
 
 # headers we need but don't want installed
 noinst_HEADERS = gstmyfilter.h
@@ -446,9 +434,6 @@ clean-pluginLTLIBRARIES:
 	  rm -f $${locs}; \
 	}
 
-libgstaudiofilterexample.la: $(libgstaudiofilterexample_la_OBJECTS) $(libgstaudiofilterexample_la_DEPENDENCIES) $(EXTRA_libgstaudiofilterexample_la_DEPENDENCIES) 
-	$(AM_V_CCLD)$(libgstaudiofilterexample_la_LINK) -rpath $(plugindir) $(libgstaudiofilterexample_la_OBJECTS) $(libgstaudiofilterexample_la_LIBADD) $(LIBS)
-
 libgstmyfilter.la: $(libgstmyfilter_la_OBJECTS) $(libgstmyfilter_la_DEPENDENCIES) $(EXTRA_libgstmyfilter_la_DEPENDENCIES) 
 	$(AM_V_CCLD)$(libgstmyfilter_la_LINK) -rpath $(plugindir) $(libgstmyfilter_la_OBJECTS) $(libgstmyfilter_la_LIBADD) $(LIBS)
 
@@ -458,7 +443,6 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-include ./$(DEPDIR)/libgstaudiofilterexample_la-gstaudiofilter.Plo
 include ./$(DEPDIR)/libgstmyfilter_la-gstmyfilter.Plo
 
 .c.o:
@@ -481,13 +465,6 @@ include ./$(DEPDIR)/libgstmyfilter_la-gstmyfilter.Plo
 #	$(AM_V_CC)source='$<' object='$@' libtool=yes \
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
 #	$(AM_V_CC_no)$(LTCOMPILE) -c -o $@ $<
-
-libgstaudiofilterexample_la-gstaudiofilter.lo: gstaudiofilter.c
-	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstaudiofilterexample_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstaudiofilterexample_la_CFLAGS) $(CFLAGS) -MT libgstaudiofilterexample_la-gstaudiofilter.lo -MD -MP -MF $(DEPDIR)/libgstaudiofilterexample_la-gstaudiofilter.Tpo -c -o libgstaudiofilterexample_la-gstaudiofilter.lo `test -f 'gstaudiofilter.c' || echo '$(srcdir)/'`gstaudiofilter.c
-	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstaudiofilterexample_la-gstaudiofilter.Tpo $(DEPDIR)/libgstaudiofilterexample_la-gstaudiofilter.Plo
-#	$(AM_V_CC)source='gstaudiofilter.c' object='libgstaudiofilterexample_la-gstaudiofilter.lo' libtool=yes \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstaudiofilterexample_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstaudiofilterexample_la_CFLAGS) $(CFLAGS) -c -o libgstaudiofilterexample_la-gstaudiofilter.lo `test -f 'gstaudiofilter.c' || echo '$(srcdir)/'`gstaudiofilter.c
 
 libgstmyfilter_la-gstmyfilter.lo: gstmyfilter.c
 	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstmyfilter_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstmyfilter_la_CFLAGS) $(CFLAGS) -MT libgstmyfilter_la-gstmyfilter.lo -MD -MP -MF $(DEPDIR)/libgstmyfilter_la-gstmyfilter.Tpo -c -o libgstmyfilter_la-gstmyfilter.lo `test -f 'gstmyfilter.c' || echo '$(srcdir)/'`gstmyfilter.c

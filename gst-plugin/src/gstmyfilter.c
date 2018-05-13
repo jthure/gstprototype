@@ -137,6 +137,8 @@ static void gst_my_filter_class_init(GstMyFilterClass *klass)
       gst_static_pad_template_get (&src_factory));
   gst_element_class_add_pad_template (gstelement_class,
       gst_static_pad_template_get (&sink_factory));
+
+  GST_BASE_TRANSFORM_CLASS(klass)->transform_ip = GST_DEBUG_FUNCPTR (gst_my_filter_transform_ip);
 }
 
 /* initialize the new element
@@ -236,8 +238,9 @@ gst_my_filter_get_property (GObject * object, guint prop_id,
 //   return GST_FLOW_OK;
 // }
 
-static GstFlowReturn gst_my_filter_transform_ip(GstBaseTransform *trans, GstBuffer *buf){
-  GstMyFilter *filter = GST_MYFILTER(trans);
+static GstFlowReturn
+gst_my_filter_transform_ip (GstBaseTransform * trans, GstBuffer * buf){
+  //GstMyFilter *filter = GST_MYFILTER(trans);
   // if (!filter->silent)
   g_print("I'm in the transform function\n");
 

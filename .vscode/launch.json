@@ -12,7 +12,10 @@
             "args": ["${workspaceFolder}/gst-app/sintel_trailer-480p.webm"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
-            "environment": [{"name": "GST_PLUGIN_PATH", "value": "${workspaceFolder}/gst-plugin/src/.libs/"}],
+            "environment": [
+                {"name": "GST_PLUGIN_PATH", "value": "${workspaceFolder}/gst-plugin/src/.libs/"},
+                {"name": "GST_DEBUG", "value": "1,myfilter:6"}
+            ],
             "externalConsole": true,
             "MIMode": "gdb",
             "setupCommands": [
