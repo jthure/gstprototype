@@ -40,6 +40,7 @@
  */
 
 #include "play.h"
+#include "gst/base/gstbasetransform.h"
 
 void
 play_uri (const gchar * uri)
@@ -86,6 +87,12 @@ play_uri (const gchar * uri)
   // g_object_set(videoflip, "video-direction", 2, NULL);
   g_object_set(playbin, "video-filter", myfilter, NULL);
 
+  
+  gboolean res = gst_base_transform_is_in_place (myfilter);
+  g_print("%d\n", res);
+
+  res = gst_base_transform_is_passthrough (myfilter);
+  g_print("%d\n", res);
 
   /* set URI to play back */
   g_object_set (playbin, "uri", uri, NULL);

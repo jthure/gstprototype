@@ -186,7 +186,7 @@ AUTOMAKE = ${SHELL} /media/sf_workspace/axis/gstprototype/gst-app/missing automa
 AWK = mawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
-CFLAGS = -g -O2 -Wall
+CFLAGS = -g -Wall
 CPP = gcc -E
 CPPFLAGS = 
 CYGPATH_W = echo

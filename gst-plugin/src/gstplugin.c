@@ -84,6 +84,7 @@ enum
  *
  * describe the real formats here.
  */
+
 static GstStaticPadTemplate sink_factory = GST_STATIC_PAD_TEMPLATE ("sink",
     GST_PAD_SINK,
     GST_PAD_ALWAYS,

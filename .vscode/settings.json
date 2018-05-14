@@ -1,5 +1,6 @@
 {
     "files.associations": {
-        "charm_embed_api.h": "c"
+        "charm_embed_api.h": "c",
+        "gstbasetransform.h": "c"
     }
 }

@@ -3,7 +3,7 @@
 ##############################################################################
 # TODO: change libgstplugin.la to something else, e.g. libmysomething.la     #
 ##############################################################################
-plugin_LTLIBRARIES = libgstmyfilter.la #libgstaudiofilterexample.la
+plugin_LTLIBRARIES = libgstmyfilter.la
 
 ##############################################################################
 # TODO: for the next set of variables, name the prefix if you named the .la, #
