@@ -151,7 +151,8 @@ static void
 gst_my_filter_init (GstMyFilter * filter)
 {
   GST_INFO_OBJECT(filter, "Initializing plugin");
-  Charm_t *pModule = NULL, *pGroup = NULL;
+  Charm_t *pModule = NULL;
+  Charm_t *pGroup = NULL;
 
   InitializeCharm();
 
@@ -260,41 +261,44 @@ gst_my_filter_transform_ip (GstBaseTransform * trans, GstBuffer * buf){
   return GST_FLOW_OK;
 }
 
-/* chain function
+gst_my_filter_transform(GstBaseTransform *trans, GstBuffer *inbuf, GstBuffer *outbuf)
+{
+}
+
+  /* chain function
  * this function does the actual processing
  */
-// static GstFlowReturn
-// gst_my_filter_chain (GstPad * pad, GstObject * parent, GstBuffer * buf)
-// {
-//   GstMyFilter *filter;
+  // static GstFlowReturn
+  // gst_my_filter_chain (GstPad * pad, GstObject * parent, GstBuffer * buf)
+  // {
+  //   GstMyFilter *filter;
 
-//   filter = GST_MYFILTER (parent);
+  //   filter = GST_MYFILTER (parent);
 
-//   if (!filter->silent)
-//     g_print ("I'm plugged, therefore I'm in.\n");
+  //   if (!filter->silent)
+  //     g_print ("I'm plugged, therefore I'm in.\n");
 
-//   /* just push out the incoming buffer without touching it */
-//   return gst_pad_push (filter->srcpad, buf);
-// }
+  //   /* just push out the incoming buffer without touching it */
+  //   return gst_pad_push (filter->srcpad, buf);
+  // }
 
-
-/* entry point to initialize the plug-in
+  /* entry point to initialize the plug-in
  * initialize the plug-in itself
  * register the element factories and other features
  */
-static gboolean
-myfilter_init (GstPlugin * myfilter)
-{
-  /* debug category for fltering log messages
+  static gboolean
+      myfilter_init(GstPlugin * myfilter)
+  {
+    /* debug category for fltering log messages
    *
    * exchange the string 'Template myfilter' with your description
    */
-  GST_DEBUG_CATEGORY_INIT (gst_my_filter_debug, "myfilter",
-      0, "Template myfilter");
+    GST_DEBUG_CATEGORY_INIT(gst_my_filter_debug, "myfilter",
+                            0, "Template myfilter");
 
-  return gst_element_register (myfilter, "myfilter", GST_RANK_NONE,
-      GST_TYPE_MYFILTER);
-}
+    return gst_element_register(myfilter, "myfilter", GST_RANK_NONE,
+                                GST_TYPE_MYFILTER);
+  }
 
 /* PACKAGE: this is usually set by autotools depending on some _INIT macro
  * in configure.ac and then written into and defined in config.h, but we can

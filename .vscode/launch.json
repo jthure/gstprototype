@@ -13,7 +13,8 @@
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [
-                {"name": "GST_PLUGIN_PATH", "value": "${workspaceFolder}/gst-plugin/src/.libs/"},
+                // {"name": "GST_PLUGIN_PATH", "value": "${workspaceFolder}/gst-plugin/src/.libs/"},
+                {"name": "GST_PLUGIN_PATH", "value": "/usr/local/lib/gstreamer-1.0/"},
                 {"name": "GST_DEBUG", "value": "1,myfilter:6"}
             ],
             "externalConsole": true,
