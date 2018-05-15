@@ -19,9 +19,10 @@ plugin_LTLIBRARIES = libgstmyfilter.la
 libgstmyfilter_la_SOURCES = gstmyfilter.c gstmyfilter.h
 
 # compiler and linker flags used to compile this plugin, set in configure.ac
-libgstmyfilter_la_CFLAGS = $(GST_CFLAGS) -I/usr/include/python3.6m -I/usr/local/lib
-libgstmyfilter_la_LIBADD = $(GST_LIBS) 
-libgstmyfilter_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS) -I/usr/local/lib
+libgstmyfilter_la_CFLAGS = $(GST_CFLAGS) -I/usr/include/python3.6m -L/usr/local/lib -L/opt/local/lib -lpthread -ldl  -lutil -lm -lgmp -lpbc -lcharm -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I/usr/include/python3.6m -I/usr/include/python3.6m  -Wno-unused-result -Wsign-compare -g -fdebug-prefix-map=/build/python3.6-sXpGnM/python3.6-3.6.3=. -specs=/usr/share/dpkg/no-pie-compile.specs -fstack-protector-strong -Wformat -Werror=format-security  -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -L/usr/lib/python3.6/config-3.6m-x86_64-linux-gnu -L/usr/lib -lpython3.6m -lpthread -ldl  -lutil -lm  -Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions
+libgstmyfilter_la_LIBADD = $(GST_LIBS) /usr/local/lib/libcharm.a
+libgstmyfilter_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS) -I/usr/include/python3.6m -L/usr/local/lib -L/opt/local/lib -lpthread -ldl  -lutil -lm -lgmp -lpbc -lcharm -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I/usr/include/python3.6m -I/usr/include/python3.6m  -Wno-unused-result -Wsign-compare -g -fdebug-prefix-map=/build/python3.6-sXpGnM/python3.6-3.6.3=. -specs=/usr/share/dpkg/no-pie-compile.specs -fstack-protector-strong -Wformat -Werror=format-security  -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -L/usr/lib/python3.6/config-3.6m-x86_64-linux-gnu -L/usr/lib -lpython3.6m -lpthread -ldl  -lutil -lm  -Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions
+# libgstmyfilter_la_LDADD = /usr/local/lib/libcharm.a
 libgstmyfilter_la_LIBTOOLFLAGS = --tag=disable-static
 
 ## Plugin 2 (audio filter example)

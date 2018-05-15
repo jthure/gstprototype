@@ -14,6 +14,8 @@
 
 
 
+# Note: plugindir is set in configure
+
 
 
 am__is_gnu_make = { \
@@ -71,10 +73,10 @@ am__make_running_with_option = \
   test $$has_opt = yes
 am__make_dryrun = (target_option=n; $(am__make_running_with_option))
 am__make_keepgoing = (target_option=k; $(am__make_running_with_option))
-pkgdatadir = $(datadir)/my-app
-pkgincludedir = $(includedir)/my-app
-pkglibdir = $(libdir)/my-app
-pkglibexecdir = $(libexecdir)/my-app
+pkgdatadir = $(datadir)/my-plugin-package
+pkgincludedir = $(includedir)/my-plugin-package
+pkglibdir = $(libdir)/my-plugin-package
+pkglibexecdir = $(libexecdir)/my-plugin-package
 am__cd = CDPATH="$${ZSH_VERSION+.}$(PATH_SEPARATOR)" && cd
 install_sh_DATA = $(install_sh) -c -m 644
 install_sh_PROGRAM = $(install_sh) -c
@@ -89,7 +91,6 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = x86_64-pc-linux-gnu
 host_triplet = x86_64-pc-linux-gnu
-bin_PROGRAMS = gst-app$(EXEEXT)
 subdir = src
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -101,18 +102,48 @@ mkinstalldirs = $(install_sh) -d
 CONFIG_HEADER = $(top_builddir)/config.h
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-am__installdirs = "$(DESTDIR)$(bindir)"
-PROGRAMS = $(bin_PROGRAMS)
-am_gst_app_OBJECTS = gst_app-main.$(OBJEXT) gst_app-play.$(OBJEXT)
-gst_app_OBJECTS = $(am_gst_app_OBJECTS)
-gst_app_LDADD = $(LDADD)
+am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
+am__vpath_adj = case $$p in \
+    $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
+    *) f=$$p;; \
+  esac;
+am__strip_dir = f=`echo $$p | sed -e 's|^.*/||'`;
+am__install_max = 40
+am__nobase_strip_setup = \
+  srcdirstrip=`echo "$(srcdir)" | sed 's/[].[^$$\\*|]/\\\\&/g'`
+am__nobase_strip = \
+  for p in $$list; do echo "$$p"; done | sed -e "s|$$srcdirstrip/||"
+am__nobase_list = $(am__nobase_strip_setup); \
+  for p in $$list; do echo "$$p $$p"; done | \
+  sed "s| $$srcdirstrip/| |;"' / .*\//!s/ .*/ ./; s,\( .*\)/[^/]*$$,\1,' | \
+  $(AWK) 'BEGIN { files["."] = "" } { files[$$2] = files[$$2] " " $$1; \
+    if (++n[$$2] == $(am__install_max)) \
+      { print $$2, files[$$2]; n[$$2] = 0; files[$$2] = "" } } \
+    END { for (dir in files) print dir, files[dir] }'
+am__base_list = \
+  sed '$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;$$!N;s/\n/ /g' | \
+  sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
+am__uninstall_files_from_dir = { \
+  test -z "$$files" \
+    || { test ! -d "$$dir" && test ! -f "$$dir" && test ! -r "$$dir"; } \
+    || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
+         $(am__cd) "$$dir" && rm -f $$files; }; \
+  }
+am__installdirs = "$(DESTDIR)$(plugindir)"
+LTLIBRARIES = $(plugin_LTLIBRARIES)
+am__DEPENDENCIES_1 =
+libgstmyfilter_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
+	/usr/local/lib/libcharm.a
+am_libgstmyfilter_la_OBJECTS = libgstmyfilter_la-gstmyfilter.lo
+libgstmyfilter_la_OBJECTS = $(am_libgstmyfilter_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
 am__v_lt_0 = --silent
 am__v_lt_1 = 
-gst_app_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC $(AM_LIBTOOLFLAGS) \
-	$(LIBTOOLFLAGS) --mode=link $(CCLD) $(gst_app_CFLAGS) \
-	$(CFLAGS) $(gst_app_LDFLAGS) $(LDFLAGS) -o $@
+libgstmyfilter_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CC \
+	$(libgstmyfilter_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link \
+	$(CCLD) $(libgstmyfilter_la_CFLAGS) $(CFLAGS) \
+	$(libgstmyfilter_la_LDFLAGS) $(LDFLAGS) -o $@
 AM_V_P = $(am__v_P_$(V))
 am__v_P_ = $(am__v_P_$(AM_DEFAULT_VERBOSITY))
 am__v_P_0 = false
@@ -147,8 +178,8 @@ AM_V_CCLD = $(am__v_CCLD_$(V))
 am__v_CCLD_ = $(am__v_CCLD_$(AM_DEFAULT_VERBOSITY))
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(gst_app_SOURCES)
-DIST_SOURCES = $(gst_app_SOURCES)
+SOURCES = $(libgstmyfilter_la_SOURCES)
+DIST_SOURCES = $(libgstmyfilter_la_SOURCES)
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -176,13 +207,13 @@ ETAGS = etags
 CTAGS = ctags
 am__DIST_COMMON = $(srcdir)/Makefile.in $(top_srcdir)/depcomp
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
-ACLOCAL = ${SHELL} /home/jonas/workspace/axis/gstprototype/gst-app/missing aclocal-1.15
+ACLOCAL = ${SHELL} /home/jonas/workspace/axis/gstprototype/gst-plugin/missing aclocal-1.15
 AMTAR = $${TAR-tar}
 AM_DEFAULT_VERBOSITY = 1
 AR = ar
-AUTOCONF = ${SHELL} /home/jonas/workspace/axis/gstprototype/gst-app/missing autoconf
-AUTOHEADER = ${SHELL} /home/jonas/workspace/axis/gstprototype/gst-app/missing autoheader
-AUTOMAKE = ${SHELL} /home/jonas/workspace/axis/gstprototype/gst-app/missing automake-1.15
+AUTOCONF = ${SHELL} /home/jonas/workspace/axis/gstprototype/gst-plugin/missing autoconf
+AUTOHEADER = ${SHELL} /home/jonas/workspace/axis/gstprototype/gst-plugin/missing autoheader
+AUTOMAKE = ${SHELL} /home/jonas/workspace/axis/gstprototype/gst-plugin/missing automake-1.15
 AWK = mawk
 CC = gcc
 CCDEPMODE = depmode=gcc3
@@ -203,7 +234,8 @@ EXEEXT =
 FGREP = /bin/grep -F
 GREP = /bin/grep
 GST_CFLAGS = -pthread -I/usr/include/gstreamer-1.0 -I/usr/include/glib-2.0 -I/usr/lib/x86_64-linux-gnu/glib-2.0/include -Wall
-GST_LIBS = -lgstbase-1.0 -lgstcontroller-1.0 -lgstreamer-1.0 -lgobject-2.0 -lglib-2.0
+GST_LIBS = -lgstcontroller-1.0 -lgstaudio-1.0 -lgstbase-1.0 -lgstreamer-1.0 -lgobject-2.0 -lglib-2.0
+GST_PLUGIN_LDFLAGS = -module -avoid-version -export-symbols-regex _*\(gst_\|Gst\|GST_\).*
 HAVE_PKGCONFIG =  
 INSTALL = /usr/bin/install -c
 INSTALL_DATA = ${INSTALL} -m 644
@@ -220,7 +252,7 @@ LN_S = ln -s
 LTLIBOBJS = 
 LT_SYS_LIBRARY_PATH = 
 MAINT = 
-MAKEINFO = ${SHELL} /home/jonas/workspace/axis/gstprototype/gst-app/missing makeinfo
+MAKEINFO = ${SHELL} /home/jonas/workspace/axis/gstprototype/gst-plugin/missing makeinfo
 MANIFEST_TOOL = :
 MKDIR_P = /bin/mkdir -p
 NM = /usr/bin/nm -B
@@ -229,11 +261,11 @@ OBJDUMP = objdump
 OBJEXT = o
 OTOOL = 
 OTOOL64 = 
-PACKAGE = my-app
+PACKAGE = my-plugin-package
 PACKAGE_BUGREPORT = 
-PACKAGE_NAME = my-app
-PACKAGE_STRING = my-app 1.0.0
-PACKAGE_TARNAME = my-app
+PACKAGE_NAME = my-plugin-package
+PACKAGE_STRING = my-plugin-package 1.0.0
+PACKAGE_TARNAME = my-plugin-package
 PACKAGE_URL = 
 PACKAGE_VERSION = 1.0.0
 PATH_SEPARATOR = :
@@ -246,10 +278,10 @@ SET_MAKE =
 SHELL = /bin/bash
 STRIP = strip
 VERSION = 1.0.0
-abs_builddir = /home/jonas/workspace/axis/gstprototype/gst-app/src
-abs_srcdir = /home/jonas/workspace/axis/gstprototype/gst-app/src
-abs_top_builddir = /home/jonas/workspace/axis/gstprototype/gst-app
-abs_top_srcdir = /home/jonas/workspace/axis/gstprototype/gst-app
+abs_builddir = /home/jonas/workspace/axis/gstprototype/gst-plugin/src
+abs_srcdir = /home/jonas/workspace/axis/gstprototype/gst-plugin/src
+abs_top_builddir = /home/jonas/workspace/axis/gstprototype/gst-plugin
+abs_top_srcdir = /home/jonas/workspace/axis/gstprototype/gst-plugin
 ac_ct_AR = ar
 ac_ct_CC = gcc
 ac_ct_DUMPBIN = 
@@ -278,7 +310,7 @@ host_vendor = pc
 htmldir = ${docdir}
 includedir = ${prefix}/include
 infodir = ${datarootdir}/info
-install_sh = ${SHELL} /home/jonas/workspace/axis/gstprototype/gst-app/install-sh
+install_sh = ${SHELL} /home/jonas/workspace/axis/gstprototype/gst-plugin/install-sh
 libdir = ${exec_prefix}/lib
 libexecdir = ${exec_prefix}/libexec
 localedir = ${datarootdir}/locale
@@ -287,6 +319,7 @@ mandir = ${datarootdir}/man
 mkdir_p = $(MKDIR_P)
 oldincludedir = /usr/include
 pdfdir = ${docdir}
+plugindir = $(libdir)/gstreamer-1.0
 prefix = /usr/local
 program_transform_name = s,x,x,
 psdir = ${docdir}
@@ -300,17 +333,40 @@ top_build_prefix = ../
 top_builddir = ..
 top_srcdir = ..
 
-# list of source files
-# the prefix is the name of the binary
-gst_app_SOURCES = main.c play.c
+##############################################################################
+# TODO: change libgstplugin.la to something else, e.g. libmysomething.la     #
+##############################################################################
+plugin_LTLIBRARIES = libgstmyfilter.la
 
-# list of headers we're not going to install
-noinst_HEADERS = gst-app.h play.h
+##############################################################################
+# TODO: for the next set of variables, name the prefix if you named the .la, #
+#  e.g. libmysomething.la => libmysomething_la_SOURCES                       #
+#                            libmysomething_la_CFLAGS                        #
+#                            libmysomething_la_LIBADD                        #
+#                            libmysomething_la_LDFLAGS                       #
+##############################################################################
 
-# our CFLAGS and LDFLAGS used for compiling and linking
-# make sure you prefix these with the name of your binary
-gst_app_CFLAGS = $(GST_CFLAGS)
-gst_app_LDFLAGS = $(GST_LIBS)
+# sources used to compile this plug-in
+libgstmyfilter_la_SOURCES = gstmyfilter.c gstmyfilter.h
+
+# compiler and linker flags used to compile this plugin, set in configure.ac
+libgstmyfilter_la_CFLAGS = $(GST_CFLAGS) -I/usr/include/python3.6m -L/usr/local/lib -L/opt/local/lib -lpthread -ldl  -lutil -lm -lgmp -lpbc -lcharm -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I/usr/include/python3.6m -I/usr/include/python3.6m  -Wno-unused-result -Wsign-compare -g -fdebug-prefix-map=/build/python3.6-sXpGnM/python3.6-3.6.3=. -specs=/usr/share/dpkg/no-pie-compile.specs -fstack-protector-strong -Wformat -Werror=format-security  -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -L/usr/lib/python3.6/config-3.6m-x86_64-linux-gnu -L/usr/lib -lpython3.6m -lpthread -ldl  -lutil -lm  -Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions
+libgstmyfilter_la_LIBADD = $(GST_LIBS) /usr/local/lib/libcharm.a
+libgstmyfilter_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS) -I/usr/include/python3.6m -L/usr/local/lib -L/opt/local/lib -lpthread -ldl  -lutil -lm -lgmp -lpbc -lcharm -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -I/usr/include/python3.6m -I/usr/include/python3.6m  -Wno-unused-result -Wsign-compare -g -fdebug-prefix-map=/build/python3.6-sXpGnM/python3.6-3.6.3=. -specs=/usr/share/dpkg/no-pie-compile.specs -fstack-protector-strong -Wformat -Werror=format-security  -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -L/usr/lib/python3.6/config-3.6m-x86_64-linux-gnu -L/usr/lib -lpython3.6m -lpthread -ldl  -lutil -lm  -Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions
+# libgstmyfilter_la_LDADD = /usr/local/lib/libcharm.a
+libgstmyfilter_la_LIBTOOLFLAGS = --tag=disable-static
+
+# sources used to compile this plug-in
+# libgstaudiofilterexample_la_SOURCES = gstaudiofilter.c
+
+# # compiler and linker flags used to compile this plugin, set in configure.ac
+# libgstaudiofilterexample_la_CFLAGS = $(GST_CFLAGS)
+# libgstaudiofilterexample_la_LIBADD = $(GST_LIBS)
+# libgstaudiofilterexample_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
+# libgstaudiofilterexample_la_LIBTOOLFLAGS = --tag=disable-static
+
+# headers we need but don't want installed
+noinst_HEADERS = gstmyfilter.h
 all: all-am
 
 .SUFFIXES:
@@ -344,59 +400,44 @@ $(top_srcdir)/configure:  $(am__configure_deps)
 $(ACLOCAL_M4):  $(am__aclocal_m4_deps)
 	cd $(top_builddir) && $(MAKE) $(AM_MAKEFLAGS) am--refresh
 $(am__aclocal_m4_deps):
-install-binPROGRAMS: $(bin_PROGRAMS)
+
+install-pluginLTLIBRARIES: $(plugin_LTLIBRARIES)
 	@$(NORMAL_INSTALL)
-	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
-	if test -n "$$list"; then \
-	  echo " $(MKDIR_P) '$(DESTDIR)$(bindir)'"; \
-	  $(MKDIR_P) "$(DESTDIR)$(bindir)" || exit 1; \
-	fi; \
-	for p in $$list; do echo "$$p $$p"; done | \
-	sed 's/$(EXEEXT)$$//' | \
-	while read p p1; do if test -f $$p \
-	 || test -f $$p1 \
-	  ; then echo "$$p"; echo "$$p"; else :; fi; \
-	done | \
-	sed -e 'p;s,.*/,,;n;h' \
-	    -e 's|.*|.|' \
-	    -e 'p;x;s,.*/,,;s/$(EXEEXT)$$//;$(transform);s/$$/$(EXEEXT)/' | \
-	sed 'N;N;N;s,\n, ,g' | \
-	$(AWK) 'BEGIN { files["."] = ""; dirs["."] = 1 } \
-	  { d=$$3; if (dirs[d] != 1) { print "d", d; dirs[d] = 1 } \
-	    if ($$2 == $$4) files[d] = files[d] " " $$1; \
-	    else { print "f", $$3 "/" $$4, $$1; } } \
-	  END { for (d in files) print "f", d, files[d] }' | \
-	while read type dir files; do \
-	    if test "$$dir" = .; then dir=; else dir=/$$dir; fi; \
-	    test -z "$$files" || { \
-	    echo " $(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL_PROGRAM) $$files '$(DESTDIR)$(bindir)$$dir'"; \
-	    $(INSTALL_PROGRAM_ENV) $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL_PROGRAM) $$files "$(DESTDIR)$(bindir)$$dir" || exit $$?; \
-	    } \
-	; done
+	@list='$(plugin_LTLIBRARIES)'; test -n "$(plugindir)" || list=; \
+	list2=; for p in $$list; do \
+	  if test -f $$p; then \
+	    list2="$$list2 $$p"; \
+	  else :; fi; \
+	done; \
+	test -z "$$list2" || { \
+	  echo " $(MKDIR_P) '$(DESTDIR)$(plugindir)'"; \
+	  $(MKDIR_P) "$(DESTDIR)$(plugindir)" || exit 1; \
+	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 '$(DESTDIR)$(plugindir)'"; \
+	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=install $(INSTALL) $(INSTALL_STRIP_FLAG) $$list2 "$(DESTDIR)$(plugindir)"; \
+	}
 
-uninstall-binPROGRAMS:
+uninstall-pluginLTLIBRARIES:
 	@$(NORMAL_UNINSTALL)
-	@list='$(bin_PROGRAMS)'; test -n "$(bindir)" || list=; \
-	files=`for p in $$list; do echo "$$p"; done | \
-	  sed -e 'h;s,^.*/,,;s/$(EXEEXT)$$//;$(transform)' \
-	      -e 's/$$/$(EXEEXT)/' \
-	`; \
-	test -n "$$list" || exit 0; \
-	echo " ( cd '$(DESTDIR)$(bindir)' && rm -f" $$files ")"; \
-	cd "$(DESTDIR)$(bindir)" && rm -f $$files
+	@list='$(plugin_LTLIBRARIES)'; test -n "$(plugindir)" || list=; \
+	for p in $$list; do \
+	  $(am__strip_dir) \
+	  echo " $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f '$(DESTDIR)$(plugindir)/$$f'"; \
+	  $(LIBTOOL) $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=uninstall rm -f "$(DESTDIR)$(plugindir)/$$f"; \
+	done
 
-clean-binPROGRAMS:
-	@list='$(bin_PROGRAMS)'; test -n "$$list" || exit 0; \
-	echo " rm -f" $$list; \
-	rm -f $$list || exit $$?; \
-	test -n "$(EXEEXT)" || exit 0; \
-	list=`for p in $$list; do echo "$$p"; done | sed 's/$(EXEEXT)$$//'`; \
-	echo " rm -f" $$list; \
-	rm -f $$list
+clean-pluginLTLIBRARIES:
+	-test -z "$(plugin_LTLIBRARIES)" || rm -f $(plugin_LTLIBRARIES)
+	@list='$(plugin_LTLIBRARIES)'; \
+	locs=`for p in $$list; do echo $$p; done | \
+	      sed 's|^[^/]*$$|.|; s|/[^/]*$$||; s|$$|/so_locations|' | \
+	      sort -u`; \
+	test -z "$$locs" || { \
+	  echo rm -f $${locs}; \
+	  rm -f $${locs}; \
+	}
 
-gst-app$(EXEEXT): $(gst_app_OBJECTS) $(gst_app_DEPENDENCIES) $(EXTRA_gst_app_DEPENDENCIES) 
-	@rm -f gst-app$(EXEEXT)
-	$(AM_V_CCLD)$(gst_app_LINK) $(gst_app_OBJECTS) $(gst_app_LDADD) $(LIBS)
+libgstmyfilter.la: $(libgstmyfilter_la_OBJECTS) $(libgstmyfilter_la_DEPENDENCIES) $(EXTRA_libgstmyfilter_la_DEPENDENCIES) 
+	$(AM_V_CCLD)$(libgstmyfilter_la_LINK) -rpath $(plugindir) $(libgstmyfilter_la_OBJECTS) $(libgstmyfilter_la_LIBADD) $(LIBS)
 
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
@@ -404,8 +445,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-include ./$(DEPDIR)/gst_app-main.Po
-include ./$(DEPDIR)/gst_app-play.Po
+include ./$(DEPDIR)/libgstmyfilter_la-gstmyfilter.Plo
 
 .c.o:
 	$(AM_V_CC)$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -428,33 +468,12 @@ include ./$(DEPDIR)/gst_app-play.Po
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
 #	$(AM_V_CC_no)$(LTCOMPILE) -c -o $@ $<
 
-gst_app-main.o: main.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(gst_app_CFLAGS) $(CFLAGS) -MT gst_app-main.o -MD -MP -MF $(DEPDIR)/gst_app-main.Tpo -c -o gst_app-main.o `test -f 'main.c' || echo '$(srcdir)/'`main.c
-	$(AM_V_at)$(am__mv) $(DEPDIR)/gst_app-main.Tpo $(DEPDIR)/gst_app-main.Po
-#	$(AM_V_CC)source='main.c' object='gst_app-main.o' libtool=no \
+libgstmyfilter_la-gstmyfilter.lo: gstmyfilter.c
+	$(AM_V_CC)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstmyfilter_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstmyfilter_la_CFLAGS) $(CFLAGS) -MT libgstmyfilter_la-gstmyfilter.lo -MD -MP -MF $(DEPDIR)/libgstmyfilter_la-gstmyfilter.Tpo -c -o libgstmyfilter_la-gstmyfilter.lo `test -f 'gstmyfilter.c' || echo '$(srcdir)/'`gstmyfilter.c
+	$(AM_V_at)$(am__mv) $(DEPDIR)/libgstmyfilter_la-gstmyfilter.Tpo $(DEPDIR)/libgstmyfilter_la-gstmyfilter.Plo
+#	$(AM_V_CC)source='gstmyfilter.c' object='libgstmyfilter_la-gstmyfilter.lo' libtool=yes \
 #	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(gst_app_CFLAGS) $(CFLAGS) -c -o gst_app-main.o `test -f 'main.c' || echo '$(srcdir)/'`main.c
-
-gst_app-main.obj: main.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(gst_app_CFLAGS) $(CFLAGS) -MT gst_app-main.obj -MD -MP -MF $(DEPDIR)/gst_app-main.Tpo -c -o gst_app-main.obj `if test -f 'main.c'; then $(CYGPATH_W) 'main.c'; else $(CYGPATH_W) '$(srcdir)/main.c'; fi`
-	$(AM_V_at)$(am__mv) $(DEPDIR)/gst_app-main.Tpo $(DEPDIR)/gst_app-main.Po
-#	$(AM_V_CC)source='main.c' object='gst_app-main.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(gst_app_CFLAGS) $(CFLAGS) -c -o gst_app-main.obj `if test -f 'main.c'; then $(CYGPATH_W) 'main.c'; else $(CYGPATH_W) '$(srcdir)/main.c'; fi`
-
-gst_app-play.o: play.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(gst_app_CFLAGS) $(CFLAGS) -MT gst_app-play.o -MD -MP -MF $(DEPDIR)/gst_app-play.Tpo -c -o gst_app-play.o `test -f 'play.c' || echo '$(srcdir)/'`play.c
-	$(AM_V_at)$(am__mv) $(DEPDIR)/gst_app-play.Tpo $(DEPDIR)/gst_app-play.Po
-#	$(AM_V_CC)source='play.c' object='gst_app-play.o' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(gst_app_CFLAGS) $(CFLAGS) -c -o gst_app-play.o `test -f 'play.c' || echo '$(srcdir)/'`play.c
-
-gst_app-play.obj: play.c
-	$(AM_V_CC)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(gst_app_CFLAGS) $(CFLAGS) -MT gst_app-play.obj -MD -MP -MF $(DEPDIR)/gst_app-play.Tpo -c -o gst_app-play.obj `if test -f 'play.c'; then $(CYGPATH_W) 'play.c'; else $(CYGPATH_W) '$(srcdir)/play.c'; fi`
-	$(AM_V_at)$(am__mv) $(DEPDIR)/gst_app-play.Tpo $(DEPDIR)/gst_app-play.Po
-#	$(AM_V_CC)source='play.c' object='gst_app-play.obj' libtool=no \
-#	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) \
-#	$(AM_V_CC_no)$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(gst_app_CFLAGS) $(CFLAGS) -c -o gst_app-play.obj `if test -f 'play.c'; then $(CYGPATH_W) 'play.c'; else $(CYGPATH_W) '$(srcdir)/play.c'; fi`
+#	$(AM_V_CC_no)$(LIBTOOL) $(AM_V_lt) --tag=CC $(libgstmyfilter_la_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libgstmyfilter_la_CFLAGS) $(CFLAGS) -c -o libgstmyfilter_la-gstmyfilter.lo `test -f 'gstmyfilter.c' || echo '$(srcdir)/'`gstmyfilter.c
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -546,9 +565,9 @@ distdir: $(DISTFILES)
 	done
 check-am: all-am
 check: check-am
-all-am: Makefile $(PROGRAMS) $(HEADERS)
+all-am: Makefile $(LTLIBRARIES) $(HEADERS)
 installdirs:
-	for dir in "$(DESTDIR)$(bindir)"; do \
+	for dir in "$(DESTDIR)$(plugindir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: install-am
@@ -583,7 +602,8 @@ maintainer-clean-generic:
 	@echo "it deletes files that may require special tools to rebuild."
 clean: clean-am
 
-clean-am: clean-binPROGRAMS clean-generic clean-libtool mostlyclean-am
+clean-am: clean-generic clean-libtool clean-pluginLTLIBRARIES \
+	mostlyclean-am
 
 distclean: distclean-am
 	-rm -rf ./$(DEPDIR)
@@ -603,13 +623,13 @@ info: info-am
 
 info-am:
 
-install-data-am:
+install-data-am: install-pluginLTLIBRARIES
 
 install-dvi: install-dvi-am
 
 install-dvi-am:
 
-install-exec-am: install-binPROGRAMS
+install-exec-am:
 
 install-html: install-html-am
 
@@ -649,23 +669,24 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-binPROGRAMS
+uninstall-am: uninstall-pluginLTLIBRARIES
 
 .MAKE: install-am install-strip
 
-.PHONY: CTAGS GTAGS TAGS all all-am check check-am clean \
-	clean-binPROGRAMS clean-generic clean-libtool cscopelist-am \
-	ctags ctags-am distclean distclean-compile distclean-generic \
+.PHONY: CTAGS GTAGS TAGS all all-am check check-am clean clean-generic \
+	clean-libtool clean-pluginLTLIBRARIES cscopelist-am ctags \
+	ctags-am distclean distclean-compile distclean-generic \
 	distclean-libtool distclean-tags distdir dvi dvi-am html \
-	html-am info info-am install install-am install-binPROGRAMS \
-	install-data install-data-am install-dvi install-dvi-am \
-	install-exec install-exec-am install-html install-html-am \
-	install-info install-info-am install-man install-pdf \
-	install-pdf-am install-ps install-ps-am install-strip \
-	installcheck installcheck-am installdirs maintainer-clean \
-	maintainer-clean-generic mostlyclean mostlyclean-compile \
-	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
-	tags tags-am uninstall uninstall-am uninstall-binPROGRAMS
+	html-am info info-am install install-am install-data \
+	install-data-am install-dvi install-dvi-am install-exec \
+	install-exec-am install-html install-html-am install-info \
+	install-info-am install-man install-pdf install-pdf-am \
+	install-pluginLTLIBRARIES install-ps install-ps-am \
+	install-strip installcheck installcheck-am installdirs \
+	maintainer-clean maintainer-clean-generic mostlyclean \
+	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
+	pdf pdf-am ps ps-am tags tags-am uninstall uninstall-am \
+	uninstall-pluginLTLIBRARIES
 
 .PRECIOUS: Makefile
 

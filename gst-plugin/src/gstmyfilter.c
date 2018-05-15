@@ -64,7 +64,7 @@
 #include <gstreamer-1.0/gst/base/gstbasetransform.h>
 
 #include "gstmyfilter.h"
-// #include "charm_embed_api.h"
+#include "charm_embed_api.h"
 
 GST_DEBUG_CATEGORY_STATIC (gst_my_filter_debug);
 #define GST_CAT_DEFAULT gst_my_filter_debug
@@ -151,7 +151,18 @@ static void
 gst_my_filter_init (GstMyFilter * filter)
 {
   GST_INFO_OBJECT(filter, "Initializing plugin");
-//   InitializeCharm();
+  Charm_t *pModule = NULL, *pGroup = NULL;
+
+  InitializeCharm();
+
+  pGroup = InitPairingGroup(pModule, "SS512");
+  if (pGroup == NULL)
+  {
+    printf("could not import pairing group.\n");
+    return -1;
+  }
+  Free(pGroup);
+  CleanupCharm();
   // filter->sinkpad = gst_pad_new_from_static_template (&sink_factory, "sink");
   // gst_pad_set_event_function (filter->sinkpad,
   //                             GST_DEBUG_FUNCPTR(gst_my_filter_sink_event));
