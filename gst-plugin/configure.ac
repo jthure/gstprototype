@@ -28,6 +28,13 @@ dnl give error and exit if we don't have pkgconfig
 AC_CHECK_PROG(HAVE_PKGCONFIG, pkg-config, [ ], [
   AC_MSG_ERROR([You need to have pkg-config installed!])
 ])
+AC_CHECK_FUNCS([getcwd])
+AC_CHECK_FUNCS([memset])
+AC_CHECK_FUNCS([strdup])
+AC_PROG_RANLIB
+AC_TYPE_UINT8_T
+AC_PROG_CXX
+AC_CONFIG_MACRO_DIRS([m4])
 
 dnl Check for the required version of GStreamer core (and gst-plugins-base)
 dnl This will export GST_CFLAGS and GST_LIBS variables for use in Makefile.am

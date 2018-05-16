@@ -17,6 +17,18 @@ AC_PROG_MAKE_SET
 AC_PROG_RANLIB
 
 # Checks for libraries.
+# FIXME: Replace `main' with a function in `-ldl':
+AC_CHECK_LIB([dl], [main])
+# FIXME: Replace `main' with a function in `-lgmp':
+AC_CHECK_LIB([gmp], [main])
+# FIXME: Replace `main' with a function in `-lm':
+AC_CHECK_LIB([m], [main])
+# FIXME: Replace `main' with a function in `-lpbc':
+AC_CHECK_LIB([pbc], [main])
+# FIXME: Replace `main' with a function in `-lpthread':
+AC_CHECK_LIB([pthread], [main])
+# FIXME: Replace `main' with a function in `-lutil':
+AC_CHECK_LIB([util], [main])
 
 # Checks for header files.
 AC_CHECK_HEADERS([stdlib.h string.h unistd.h])
@@ -25,6 +37,7 @@ AC_CHECK_HEADERS([stdlib.h string.h unistd.h])
 AC_TYPE_UINT8_T
 
 # Checks for library functions.
+AC_CHECK_FUNCS([getcwd memset strdup])
 
 AC_CONFIG_FILES([Makefile
                  src/Makefile])
