@@ -48,6 +48,7 @@
 
 #include <gst/gst.h>
 #include <gstreamer-1.0/gst/base/gstbasetransform.h>
+#include <charm_embed_api.h>
 
 G_BEGIN_DECLS
 
@@ -73,6 +74,8 @@ struct _GstMyFilter
   GstPad *sinkpad, *srcpad;
 
   gboolean silent;
+
+  Charm_t *scheme;
 };
 
 struct _GstMyFilterClass 

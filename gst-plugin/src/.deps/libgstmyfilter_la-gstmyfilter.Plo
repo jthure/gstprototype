@@ -312,7 +312,7 @@ libgstmyfilter_la-gstmyfilter.lo: gstmyfilter.c \
  /usr/include/python3.6m/eval.h /usr/include/python3.6m/pyctype.h \
  /usr/include/python3.6m/pystrtod.h /usr/include/python3.6m/pystrcmp.h \
  /usr/include/python3.6m/dtoa.h /usr/include/python3.6m/fileutils.h \
- /usr/include/python3.6m/pyfpe.h
+ /usr/include/python3.6m/pyfpe.h charm_embed_api.h
 
 /usr/include/stdc-predef.h:
 
@@ -1063,3 +1063,5 @@ charm_embed_api.h:
 /usr/include/python3.6m/fileutils.h:
 
 /usr/include/python3.6m/pyfpe.h:
+
+charm_embed_api.h:

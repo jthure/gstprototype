@@ -1,5 +1,4 @@
 { global:
 gst_my_filter_get_type;
-gst_my_filter_transform;
 gst_plugin_desc;
 local: *; };
