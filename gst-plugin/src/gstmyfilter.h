@@ -66,6 +66,11 @@ G_BEGIN_DECLS
 
 typedef struct _GstMyFilter      GstMyFilter;
 typedef struct _GstMyFilterClass GstMyFilterClass;
+typedef enum {
+  PRE_ENCRYPT,
+  PRE_RE_ENCRYPT,
+  PRE_DECRYPT
+} PRE_MODE;
 
 struct _GstMyFilter
 {
@@ -75,7 +80,9 @@ struct _GstMyFilter
 
   gboolean silent;
 
-  Charm_t *scheme;
+  PRE_MODE mode; 
+
+  Charm_t *scheme, *group, *params, *pk, *sk;
 };
 
 struct _GstMyFilterClass 

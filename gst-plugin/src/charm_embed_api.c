@@ -313,15 +313,15 @@ Charm_t *InitScheme(const char *class_file, const char *class_name, Charm_t *pOb
 }
 
 // Charm adapters usually have 2 arguments: 1st arg is the scheme, and 2nd arg is the group object
-Charm_t *InitAdapter(const char *class_file, const char *class_name, Charm_t *pObject1, Charm_t *pObject2)
+Charm_t *InitAdapter(const char *class_file, const char *class_name, Charm_t *pObject1)//, Charm_t *pObject2)
 {
-	if(pObject1 == NULL || pObject2 == NULL) return NULL;
+	if(pObject1 == NULL) return NULL;// || pObject2 == NULL) return NULL;
 	PyObject *pClassFile, *pModule, *pFunc, *pArgs, *pValue=NULL;
 	pClassFile = PyUnicode_FromString(class_file);
 
 	pModule = PyImport_Import(pClassFile);
     Free(pClassFile);
-    debug("successful import: '%s'\n", pModule->ob_type->tp_name);
+    if(pModule != NULL) debug("successful import: '%s'\n", pModule->ob_type->tp_name);
 
     if(pModule != NULL) {
     	pFunc = PyObject_GetAttrString(pModule, class_name);
@@ -331,7 +331,7 @@ Charm_t *InitAdapter(const char *class_file, const char *class_name, Charm_t *pO
             pArgs = PyTuple_New(2);
             /* pObject1 & pObject2 reference stolen here: note might need to Py_INCREF before this point. */
             PyTuple_SetItem(pArgs, 0, pObject1);
-            PyTuple_SetItem(pArgs, 1, pObject2);
+            // PyTuple_SetItem(pArgs, 1, pObject2);
             debug("calling class init.\n");
         	// instantiate pValue = ClassName( pObject )
             pValue = PyObject_CallObject(pFunc, pArgs);

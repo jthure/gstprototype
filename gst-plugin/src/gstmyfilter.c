@@ -80,9 +80,9 @@ enum
 enum
 {
   PROP_0,
-  PROP_SILENT
+  PROP_SILENT,
+  PROP_PRE_MODE
 };
-
 /* the capabilities of the inputs and outputs.
  *
  * describe the real formats here.
@@ -107,8 +107,7 @@ static void gst_my_filter_get_property(GObject *object, guint prop_id,
 
 // static gboolean gst_my_filter_sink_event (GstPad * pad, GstObject * parent, GstEvent * event);
 // static GstFlowReturn gst_my_filter_chain (GstPad * pad, GstObject * parent, GstBuffer * buf);
-// static GstFlowReturn gst_my_filter_transform(GstBaseTransform *trans, GstBuffer *in_buf, GstBuffer *outBuf);
-static GstFlowReturn gst_my_filter_transform_ip(GstBaseTransform *trans, GstBuffer *buf);
+static GstFlowReturn gst_my_filter_transform(GstBaseTransform *trans, GstBuffer *in_buf, GstBuffer *out_buf);
 /* GObject vmethod implementations */
 
 /* initialize the myfilter's class */
@@ -138,7 +137,7 @@ static void gst_my_filter_class_init(GstMyFilterClass *klass)
   gst_element_class_add_pad_template(gstelement_class,
                                      gst_static_pad_template_get(&sink_factory));
 
-  GST_BASE_TRANSFORM_CLASS(klass)->transform_ip = GST_DEBUG_FUNCPTR(gst_my_filter_transform_ip);
+  GST_BASE_TRANSFORM_CLASS(klass)->transform = GST_DEBUG_FUNCPTR(gst_my_filter_transform);
 }
 
 /* initialize the new element
@@ -188,27 +187,43 @@ static void
 gst_my_filter_init(GstMyFilter *filter)
 {
   GST_INFO_OBJECT(filter, "Initializing plugin");
-  Charm_t *module = NULL, *group = NULL, *scheme = NULL, *sig = NULL;
+  Charm_t *module = NULL, *group = NULL, *scheme = NULL, *sig = NULL, *hyb = NULL;
 
   InitializeCharm();
+  PyObject *pModule = NULL, *pClassName = NULL;
+  pClassName = PyUnicode_FromString("charm.adapters.abenc_adapt_hybrid");
+	pModule = PyImport_Import(pClassName);
 
   group = InitPairingGroup(module, "SS512");
   if (group == NULL)
   {
     printf("could not import pairing group.\n");
-    return -1;
+    return;
   }
   sig = InitSignatureScheme("charm.schemes.pksig.lamport_jm", "Lamport");
   scheme = InitScheme("charm.schemes.prenc.pre_afgh06_temp_jm", "AFGH06Temp", group);
   if (scheme == NULL)
   {
     printf("could not create scheme.\n");
-    return -1;
+    return;
+  }
+  hyb = InitAdapter("charm.adapters.abenc_adapt_hybrid", "HybridUniPREnc", scheme);
+  if(hyb == NULL)
+  {
+    printf("could not create hybrid.\n");
+    return;
   }
 
-  Free(group);
-  Free(scheme);
-  CleanupCharm();
+  Charm_t *params = CallMethod(scheme, "setup", "");
+  Charm_t *keys = CallMethod(scheme, "keygen", "%O", params);
+  Charm_t *pk = GetIndex(keys, 0);
+  Charm_t *sk = GetIndex(keys, 1);
+
+  filter->scheme = scheme;
+  filter->group = group;
+  filter->params = params;
+  filter->pk = pk;
+  filter->sk = sk;
 
   // filter->sinkpad = gst_pad_new_from_static_template (&sink_factory, "sink");
   // gst_pad_set_event_function (filter->sinkpad,
@@ -235,6 +250,9 @@ gst_my_filter_set_property(GObject *object, guint prop_id,
   {
   case PROP_SILENT:
     filter->silent = g_value_get_boolean(value);
+    break;
+  case PROP_PRE_MODE:
+    filter->mode = g_value_get_int(value);
     break;
   default:
     G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
@@ -292,7 +310,7 @@ gst_my_filter_get_property(GObject *object, guint prop_id,
 //   return ret;
 // }
 
-// static GstFlowReturn gst_my_filter_transform(GstBaseTransform *trans, GstBuffer *in_buf, GstBuffer *outBuf){
+// static GstFlowReturn gst_my_filter_transform(GstBaseTransform *trans, GstBuffer *in_buf, GstBuffer *out_Buf){
 //   GstMyFilter *filter = GST_MYFILTER(trans);
 //   if(!filter->silent) g_print("I'm in the transform function\n");
 
@@ -300,11 +318,25 @@ gst_my_filter_get_property(GObject *object, guint prop_id,
 // }
 
 static GstFlowReturn
-gst_my_filter_transform_ip(GstBaseTransform *trans, GstBuffer *buf)
+gst_my_filter_transform(GstBaseTransform *trans, GstBuffer *in_buf, GstBuffer *out_buf)
 {
-  //GstMyFilter *filter = GST_MYFILTER(trans);
-  // if (!filter->silent)
-  g_print("I'm in the transform function\n");
+  GstMyFilter *filter = GST_MYFILTER(trans);
+  if (!filter->silent) g_print("I'm in the transform function\n");
+  GstMapInfo in_map, out_map;
+  gst_buffer_map(in_buf, &in_map, GST_MAP_READ);
+  gst_buffer_map(out_buf, &out_map, GST_MAP_WRITE);
+  // GetDict(filter->params, "")
+
+  if(filter->mode == PRE_ENCRYPT)
+  {
+    CallMethod(filter->scheme, "encrypt_lvl2", "");
+  } else if(filter->mode == PRE_DECRYPT)
+  {
+    CallMethod(filter->scheme, "decrypt_lvl1", "");
+  } else
+  {
+    CallMethod(filter->scheme, "re_encrypt", "");
+  }
 
   return GST_FLOW_OK;
 }

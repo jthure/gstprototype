@@ -112,7 +112,7 @@ Charm_t *InitECGroup(Charm_t *pModule, int param_id);
 Charm_t *InitIntegerGroup(Charm_t *pModule, int param_id);
 
 Charm_t *InitScheme(const char *class_file, const char *class_name, Charm_t *pObject);
-Charm_t *InitAdapter(const char *class_file, const char *class_name, Charm_t *pObject1, Charm_t *pObject2);
+Charm_t *InitAdapter(const char *class_file, const char *class_name, Charm_t *pObject1);//, Charm_t *pObject2);
 Charm_t *CallMethod(Charm_t *pObject, const char *func_name, char *types, ...);
 
 /* retrieve objects inside a Python tuple or list by index number: must decref result */
