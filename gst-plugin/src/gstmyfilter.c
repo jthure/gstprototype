@@ -100,14 +100,13 @@ static GstStaticPadTemplate src_factory = GST_STATIC_PAD_TEMPLATE("src",
 #define gst_my_filter_parent_class parent_class
 G_DEFINE_TYPE(GstMyFilter, gst_my_filter, GST_TYPE_BASE_TRANSFORM);
 
-static void gst_my_filter_set_property(GObject *object, guint prop_id,
-                                       const GValue *value, GParamSpec *pspec);
-static void gst_my_filter_get_property(GObject *object, guint prop_id,
-                                       GValue *value, GParamSpec *pspec);
+static void gst_my_filter_set_property(GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec);
+static void gst_my_filter_get_property(GObject *object, guint prop_id, GValue *value, GParamSpec *pspec);
 
 // static gboolean gst_my_filter_sink_event (GstPad * pad, GstObject * parent, GstEvent * event);
 // static GstFlowReturn gst_my_filter_chain (GstPad * pad, GstObject * parent, GstBuffer * buf);
 static GstFlowReturn gst_my_filter_transform(GstBaseTransform *trans, GstBuffer *in_buf, GstBuffer *out_buf);
+static GstFlowReturn gst_my_filter_prepare_output_buffer(GstBaseTransform *trans, GstBuffer *in_buf, GstBuffer **out_buf);
 /* GObject vmethod implementations */
 
 /* initialize the myfilter's class */
@@ -132,12 +131,11 @@ static void gst_my_filter_class_init(GstMyFilterClass *klass)
                                        "FIXME:Generic Template Element",
                                        "jonas <<user@hostname.org>>");
 
-  gst_element_class_add_pad_template(gstelement_class,
-                                     gst_static_pad_template_get(&src_factory));
-  gst_element_class_add_pad_template(gstelement_class,
-                                     gst_static_pad_template_get(&sink_factory));
+  gst_element_class_add_pad_template(gstelement_class, gst_static_pad_template_get(&src_factory));
+  gst_element_class_add_pad_template(gstelement_class, gst_static_pad_template_get(&sink_factory));
 
   GST_BASE_TRANSFORM_CLASS(klass)->transform = GST_DEBUG_FUNCPTR(gst_my_filter_transform);
+  GST_BASE_TRANSFORM_CLASS(klass)->prepare_output_buffer = GST_DEBUG_FUNCPTR(gst_my_filter_prepare_output_buffer);
 }
 
 /* initialize the new element
@@ -190,9 +188,6 @@ gst_my_filter_init(GstMyFilter *filter)
   Charm_t *module = NULL, *group = NULL, *scheme = NULL, *sig = NULL, *hyb = NULL;
 
   InitializeCharm();
-  PyObject *pModule = NULL, *pClassName = NULL;
-  pClassName = PyUnicode_FromString("charm.adapters.abenc_adapt_hybrid");
-	pModule = PyImport_Import(pClassName);
 
   group = InitPairingGroup(module, "SS512");
   if (group == NULL)
@@ -200,15 +195,15 @@ gst_my_filter_init(GstMyFilter *filter)
     printf("could not import pairing group.\n");
     return;
   }
-  sig = InitSignatureScheme("charm.schemes.pksig.lamport_jm", "Lamport");
+  // sig = InitSignatureScheme("charm.schemes.pksig.lamport_jm", "Lamport");
   scheme = InitScheme("charm.schemes.prenc.pre_afgh06_temp_jm", "AFGH06Temp", group);
   if (scheme == NULL)
   {
     printf("could not create scheme.\n");
     return;
   }
-  hyb = InitAdapter("charm.adapters.abenc_adapt_hybrid", "HybridUniPREnc", scheme);
-  if(hyb == NULL)
+  hyb = InitAdapter("charm.adapters.pre_hybrid_jm", "HybridUniPREnc", scheme);
+  if (hyb == NULL)
   {
     printf("could not create hybrid.\n");
     return;
@@ -219,24 +214,12 @@ gst_my_filter_init(GstMyFilter *filter)
   Charm_t *pk = GetIndex(keys, 0);
   Charm_t *sk = GetIndex(keys, 1);
 
-  filter->scheme = scheme;
+  filter->scheme = hyb;
   filter->group = group;
   filter->params = params;
   filter->pk = pk;
   filter->sk = sk;
-
-  // filter->sinkpad = gst_pad_new_from_static_template (&sink_factory, "sink");
-  // gst_pad_set_event_function (filter->sinkpad,
-  //                             GST_DEBUG_FUNCPTR(gst_my_filter_sink_event));
-  // gst_pad_set_chain_function (filter->sinkpad,
-  //                             GST_DEBUG_FUNCPTR(gst_my_filter_chain));
-  // GST_PAD_SET_PROXY_CAPS (filter->sinkpad);
-  // gst_element_add_pad (GST_ELEMENT (filter), filter->sinkpad);
-
-  // filter->srcpad = gst_pad_new_from_static_template (&src_factory, "src");
-  // GST_PAD_SET_PROXY_CAPS (filter->srcpad);
-  // gst_element_add_pad (GST_ELEMENT (filter), filter->srcpad);
-
+  filter->mode = PRE_ENCRYPT;
   filter->silent = FALSE;
 }
 
@@ -271,6 +254,8 @@ gst_my_filter_get_property(GObject *object, guint prop_id,
   case PROP_SILENT:
     g_value_set_boolean(value, filter->silent);
     break;
+  case PROP_PRE_MODE:
+    g_value_set_int(value, filter->mode);
   default:
     G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
     break;
@@ -279,84 +264,52 @@ gst_my_filter_get_property(GObject *object, guint prop_id,
 
 /* GstElement vmethod implementations */
 
-/* this function handles sink events */
-// static gboolean
-// gst_my_filter_sink_event (GstPad * pad, GstObject * parent, GstEvent * event)
-// {
-//   GstMyFilter *filter;
-//   gboolean ret;
-
-//   filter = GST_MYFILTER (parent);
-
-//   GST_LOG_OBJECT (filter, "Received %s event: %" GST_PTR_FORMAT,
-//       GST_EVENT_TYPE_NAME (event), event);
-
-//   switch (GST_EVENT_TYPE (event)) {
-//     case GST_EVENT_CAPS:
-//     {
-//       GstCaps * caps;
-
-//       gst_event_parse_caps (event, &caps);
-//       /* do something with the caps */
-
-//       /* and forward */
-//       ret = gst_pad_event_default (pad, parent, event);
-//       break;
-//     }
-//     default:
-//       ret = gst_pad_event_default (pad, parent, event);
-//       break;
-//   }
-//   return ret;
-// }
-
-// static GstFlowReturn gst_my_filter_transform(GstBaseTransform *trans, GstBuffer *in_buf, GstBuffer *out_Buf){
-//   GstMyFilter *filter = GST_MYFILTER(trans);
-//   if(!filter->silent) g_print("I'm in the transform function\n");
-
-//   return GST_FLOW_OK;
-// }
-
+static GstFlowReturn gst_my_filter_prepare_output_buffer(GstBaseTransform *trans, GstBuffer *in_buf, GstBuffer **out_buf)
+{
+  GstMyFilter *filter = GST_MYFILTER(trans);
+  gsize extra_encrypted_size = 300000; // TODO: Calculate how much extra space is needed
+  *out_buf = gst_buffer_new_allocate(NULL, gst_buffer_get_size(in_buf) + extra_encrypted_size , NULL);
+  *out_buf = gst_buffer_make_writable(*out_buf);
+  return GST_FLOW_OK;
+}
 static GstFlowReturn
 gst_my_filter_transform(GstBaseTransform *trans, GstBuffer *in_buf, GstBuffer *out_buf)
 {
+  Charm_t *pre_op_value = NULL, *pre_op_value_bytes = NULL;
+  Py_ssize_t out_data_size;
   GstMyFilter *filter = GST_MYFILTER(trans);
-  if (!filter->silent) g_print("I'm in the transform function\n");
+  if (!filter->silent)
+    g_print("I'm in the transform function\n");
   GstMapInfo in_map, out_map;
   gst_buffer_map(in_buf, &in_map, GST_MAP_READ);
   gst_buffer_map(out_buf, &out_map, GST_MAP_WRITE);
-  // GetDict(filter->params, "")
-
-  if(filter->mode == PRE_ENCRYPT)
+  PyObject *msg_bytes = PyBytes_FromStringAndSize(in_map.data, in_map.size);
+  // Py_ssize_t size = PyBytes_Size(msg_bytes);
+  if (filter->mode == PRE_ENCRYPT)
   {
-    CallMethod(filter->scheme, "encrypt_lvl2", "");
-  } else if(filter->mode == PRE_DECRYPT)
+    pre_op_value = CallMethod(filter->scheme, "encrypt_lvl2", "%O%O%O%$s", filter->params, filter->pk, msg_bytes, "l", "2018");
+  }
+  else if (filter->mode == PRE_DECRYPT)
   {
-    CallMethod(filter->scheme, "decrypt_lvl1", "");
-  } else
+    CallMethod(filter->scheme, "decrypt_lvl1", "%O%O", filter->params, filter->sk, NULL);
+  }
+  else if(filter->mode == PRE_RE_ENCRYPT)
   {
     CallMethod(filter->scheme, "re_encrypt", "");
   }
-
+  else{
+    g_print("Invalid PRE mode.\n");
+    return GST_FLOW_ERROR;
+  }
+  pre_op_value_bytes = objectToBytes(pre_op_value, filter->group);
+  char sucessful = PyBytes_AsStringAndSize(pre_op_value_bytes, &out_map.data, &out_data_size) != -1;
+  gst_buffer_set_size(out_buf, out_data_size);
+  gst_buffer_unmap(in_buf, &in_map);
+  gst_buffer_unmap(out_buf, &out_map);
   return GST_FLOW_OK;
+  // if (gst_buffer_copy_into(out_buf, in_buf, GST_BUFFER_COPY_ALL, 0, -1)) return GST_FLOW_OK;
+  // return GST_FLOW_ERROR;
 }
-
-/* chain function
- * this function does the actual processing
- */
-// static GstFlowReturn
-// gst_my_filter_chain (GstPad * pad, GstObject * parent, GstBuffer * buf)
-// {
-//   GstMyFilter *filter;
-
-//   filter = GST_MYFILTER (parent);
-
-//   if (!filter->silent)
-//     g_print ("I'm plugged, therefore I'm in.\n");
-
-//   /* just push out the incoming buffer without touching it */
-//   return gst_pad_push (filter->srcpad, buf);
-// }
 
 /* entry point to initialize the plug-in
  * initialize the plug-in itself
