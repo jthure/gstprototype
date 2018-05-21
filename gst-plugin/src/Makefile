@@ -136,7 +136,7 @@ am__installdirs = "$(DESTDIR)$(plugindir)"
 LTLIBRARIES = $(plugin_LTLIBRARIES)
 am__DEPENDENCIES_1 =
 libgstmyfilter_la_DEPENDENCIES = $(am__DEPENDENCIES_1) \
-	/usr/lib/python3.6/config-3.6m-x86_64-linux-gnu/libpython3.6m.so
+	$(am__DEPENDENCIES_1)
 am_libgstmyfilter_la_OBJECTS = libgstmyfilter_la-gstmyfilter.lo \
 	libgstmyfilter_la-charm_embed_api.lo
 libgstmyfilter_la_OBJECTS = $(am_libgstmyfilter_la_OBJECTS)
@@ -280,6 +280,8 @@ PATH_SEPARATOR = :
 PKG_CONFIG = /usr/bin/pkg-config
 PKG_CONFIG_LIBDIR = 
 PKG_CONFIG_PATH = 
+PY_CFLAGS = -I/usr/include/python3.6m -I/usr/include/x86_64-linux-gnu/python3.6m
+PY_LIBS = -lpython3.6m
 RANLIB = ranlib
 SED = /bin/sed
 SET_MAKE = 
@@ -359,12 +361,9 @@ plugin_LTLIBRARIES = libgstmyfilter.la
 libgstmyfilter_la_SOURCES = gstmyfilter.c gstmyfilter.h charm_embed_api.c charm_embed_api.h
 
 # compiler and linker flags used to compile this plugin, set in configure.ac
-libgstmyfilter_la_CFLAGS = $(GST_CFLAGS) -O2 -g  -I/usr/include/python3.6m -I/usr/include/python3.6m  -Wno-unused-result -Wsign-compare -g -fdebug-prefix-map=/build/python3.6-sXpGnM/python3.6-3.6.3=. -specs=/usr/share/dpkg/no-pie-compile.specs -fstack-protector-strong -Wformat -Werror=format-security  -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -DDYNAMIC_ANNOTATIONS_ENABLED=1 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes
-# libgstmyfilter_la_CFLAGS = $(GST_CFLAGS) -I/usr/include/python3.6m -L/usr/local/lib -L/opt/local/lib -lpthread -ldl  -lutil -lm -lgmp -lpbc -DNDEBUG -g -fwrapv -Wall -Wstrict-prototypes -Wno-unused-result -Wsign-compare -g -fdebug-prefix-map=/build/python3.6-sXpGnM/python3.6-3.6.3=. -specs=/usr/share/dpkg/no-pie-compile.specs -fstack-protector-strong -Wformat -Werror=format-security  -DNDEBUG -g -fwrapv  -Wall -Wstrict-prototypes -L/usr/lib/python3.6/config-3.6m-x86_64-linux-gnu -L/usr/lib -Xlinker -export-dynamic -Wl,-O0 -Wl,-Bsymbolic-functions -lpthread -ldl  -lutil -lm -lpython3.6m
-libgstmyfilter_la_LIBADD = $(GST_LIBS) /usr/lib/python3.6/config-3.6m-x86_64-linux-gnu/libpython3.6m.so
-# libgstmyfilter_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS) -I/usr/include/python3.6m -L/usr/local/lib -L/opt/local/lib -lpthread -ldl  -lutil -lm -lgmp -lpbc -DNDEBUG -g -fwrapv -Wall -Wstrict-prototypes -Wno-unused-result -Wsign-compare -g -fdebug-prefix-map=/build/python3.6-sXpGnM/python3.6-3.6.3=. -specs=/usr/share/dpkg/no-pie-compile.specs -fstack-protector-strong -Wformat -Werror=format-security  -DNDEBUG -g -fwrapv -Wall -Wstrict-prototypes -L/usr/lib/python3.6/config-3.6m-x86_64-linux-gnu -L/usr/lib  -Xlinker -export-dynamic -Wl,-O0 -Wl,-Bsymbolic-functions -lpthread -ldl  -lutil -lm -lpython3.6m
-libgstmyfilter_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS) -O2 -g  -I/usr/include/python3.6m -I/usr/include/python3.6m  -Wno-unused-result -Wsign-compare -g -fdebug-prefix-map=/build/python3.6-sXpGnM/python3.6-3.6.3=. -specs=/usr/share/dpkg/no-pie-compile.specs -fstack-protector-strong -Wformat -Werror=format-security  -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -m64  -L/usr/lib/python3.6/config-3.6m-x86_64-linux-gnu -L/usr/lib -lpython3.6m -lpthread -ldl  -lutil -lm  -Xlinker -export-dynamic -Wl,-O1 -Wl,-Bsymbolic-functions -L/usr/local/lib -L/opt/local/lib -lpthread -ldl  -lutil -lm -lgmp -lpbc -DDYNAMIC_ANNOTATIONS_ENABLED=1 -DNDEBUG -g -fwrapv -O3 -Wall -Wstrict-prototypes -lpython3.6m
-# libgstmyfilter_la_LDADD = /usr/local/lib/libcharm.a
+libgstmyfilter_la_CFLAGS = $(GST_CFLAGS) $(PY_CFLAGS)
+libgstmyfilter_la_LIBADD = $(GST_LIBS) $(PY_LIBS)
+libgstmyfilter_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstmyfilter_la_LIBTOOLFLAGS = --tag=disable-static
 
 # sources used to compile this plug-in

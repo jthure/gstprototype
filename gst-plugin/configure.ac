@@ -34,7 +34,6 @@ AC_CHECK_FUNCS([strdup])
 AC_PROG_RANLIB
 AC_TYPE_UINT8_T
 AC_PROG_CXX
-AC_CONFIG_MACRO_DIRS([m4])
 
 dnl Check for the required version of GStreamer core (and gst-plugins-base)
 dnl This will export GST_CFLAGS and GST_LIBS variables for use in Makefile.am
@@ -64,6 +63,17 @@ PKG_CHECK_MODULES(GST, [
       libgstreamer1.0-dev and libgstreamer-plugins-base1.0-dev.
       on RPM-based systems gstreamer1.0-devel, libgstreamer1.0-devel
       or similar. The minimum version required is $GST_REQUIRED.
+  ])
+])
+
+PKG_CHECK_MODULES(PY, [
+  python3
+], [
+  AC_SUBST(PY_CFLAGS)
+  AC_SUBST(PY_LIBS)
+], [
+  AC_MSG_ERROR([
+    python3 is required.
   ])
 ])
 
