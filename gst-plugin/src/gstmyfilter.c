@@ -70,6 +70,7 @@
 GST_DEBUG_CATEGORY_STATIC(gst_my_filter_debug);
 #define GST_CAT_DEFAULT gst_my_filter_debug
 
+
 /* Filter signals and args */
 enum
 {
@@ -81,7 +82,11 @@ enum
 {
   PROP_0,
   PROP_SILENT,
-  PROP_PRE_MODE
+  PROP_PRE_MODE,
+  PROP_PRE_PARAMS,
+  PROP_PRE_PK,
+  PROP_PRE_SK,
+  PROP_PRE_RK
 };
 /* the capabilities of the inputs and outputs.
  *
@@ -124,7 +129,21 @@ static void gst_my_filter_class_init(GstMyFilterClass *klass)
   g_object_class_install_property(gobject_class, PROP_SILENT,
                                   g_param_spec_boolean("silent", "Silent", "Produce verbose output ?",
                                                        FALSE, G_PARAM_READWRITE));
-
+  g_object_class_install_property(gobject_class, PROP_PRE_PARAMS,
+                                  g_param_spec_string("params", "Params", "PRE Params",
+                                                       NULL, G_PARAM_READWRITE));
+  g_object_class_install_property(gobject_class, PROP_PRE_PK,
+                                  g_param_spec_string("pk", "PK", "PRE Public key",
+                                                       NULL, G_PARAM_READWRITE));
+  g_object_class_install_property(gobject_class, PROP_PRE_SK,
+                                  g_param_spec_string("sk", "SK", "PRE Secret key",
+                                                       NULL, G_PARAM_READWRITE));
+  g_object_class_install_property(gobject_class, PROP_PRE_RK,
+                                  g_param_spec_string("rk", "RK", "PRE Re-encryption key",
+                                                       NULL, G_PARAM_READWRITE));
+  g_object_class_install_property(gobject_class, PROP_PRE_MODE,
+                                  g_param_spec_int("mode", "Mode", "PRE Mode",
+                                                       0, 2, 0, G_PARAM_READWRITE));                                                    
   gst_element_class_set_details_simple(gstelement_class,
                                        "MyFilter",
                                        "FIXME:Generic",
@@ -138,11 +157,6 @@ static void gst_my_filter_class_init(GstMyFilterClass *klass)
   GST_BASE_TRANSFORM_CLASS(klass)->prepare_output_buffer = GST_DEBUG_FUNCPTR(gst_my_filter_prepare_output_buffer);
 }
 
-/* initialize the new element
- * instantiate pads and add them to element
- * set pad calback functions
- * initialize instance structure
- */
 static Charm_t *InitSignatureScheme(const char *class_file, const char *class_name)
 {
   PyObject *py_class_name, *module = NULL, *func = NULL, *class_instance = NULL, *args = NULL;
@@ -181,6 +195,9 @@ static Charm_t *InitSignatureScheme(const char *class_file, const char *class_na
     fprintf(stderr, "Cannot complete import.\n");
   }
 }
+/* initialize the new element
+ * initialize instance structure
+ */
 static void
 gst_my_filter_init(GstMyFilter *filter)
 {
@@ -209,18 +226,30 @@ gst_my_filter_init(GstMyFilter *filter)
     return;
   }
 
-  Charm_t *params = CallMethod(scheme, "setup", "");
-  Charm_t *keys = CallMethod(scheme, "keygen", "%O", params);
-  Charm_t *pk = GetIndex(keys, 0);
-  Charm_t *sk = GetIndex(keys, 1);
+  // Charm_t *params = CallMethod(scheme, "setup", "");
+  // Charm_t *keys_a = CallMethod(scheme, "keygen", "%O", params);
+  // Charm_t *pk_a = GetIndex(keys_a, 0);
+  // Charm_t *sk_a = GetIndex(keys_a, 1);
+
+  // Charm_t *keys_b = CallMethod(scheme, "keygen", "%O", params);
+  // Charm_t *pk_b = GetIndex(keys_b, 0);
+  // Charm_t *sk_b = GetIndex(keys_b, 1);
+
+  // Charm_t *rk_ab = CallMethod(scheme, "re_keygen", "%O%O%O%$s", params, sk_a, pk_b, "l", "2018");
 
   filter->scheme = hyb;
   filter->group = group;
-  filter->params = params;
-  filter->pk = pk;
-  filter->sk = sk;
+  filter->params = NULL;
+  filter->pk = NULL;
+  filter->sk = NULL;
   filter->mode = PRE_ENCRYPT;
   filter->silent = FALSE;
+  // g_print("PARAMS: %s\n", PyBytes_AsString(objectToBytes(params, group)));
+  // g_print("PK_A: %s\n", PyBytes_AsString(objectToBytes(pk_a, group)));
+  // g_print("SK_A: %s\n", PyBytes_AsString(objectToBytes(sk_a, group)));
+  // g_print("PK_B: %s\n", PyBytes_AsString(objectToBytes(pk_b, group)));
+  // g_print("SK_B: %s\n", PyBytes_AsString(objectToBytes(sk_b, group)));
+  // g_print("RK_A->B: %s\n", PyBytes_AsString(objectToBytes(rk_ab, group)));
 }
 
 static void
@@ -228,6 +257,7 @@ gst_my_filter_set_property(GObject *object, guint prop_id,
                            const GValue *value, GParamSpec *pspec)
 {
   GstMyFilter *filter = GST_MYFILTER(object);
+  char *prop_string = NULL;
 
   switch (prop_id)
   {
@@ -236,6 +266,22 @@ gst_my_filter_set_property(GObject *object, guint prop_id,
     break;
   case PROP_PRE_MODE:
     filter->mode = g_value_get_int(value);
+    break;
+  case PROP_PRE_PARAMS:
+    prop_string = g_value_get_string(value);
+    filter->params = bytesToObject(PyBytes_FromString(prop_string), filter->group);
+    break;
+  case PROP_PRE_PK:
+    prop_string = g_value_get_string(value);
+    filter->pk = bytesToObject(PyBytes_FromString(prop_string), filter->group);
+    break;
+  case PROP_PRE_SK:
+    prop_string = g_value_get_string(value);
+    filter->sk = bytesToObject(PyBytes_FromString(prop_string), filter->group);
+    break;
+  case PROP_PRE_RK:
+    prop_string = g_value_get_string(value);
+    filter->rk = bytesToObject(PyBytes_FromString(prop_string), filter->group);
     break;
   default:
     G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
@@ -275,40 +321,47 @@ static GstFlowReturn gst_my_filter_prepare_output_buffer(GstBaseTransform *trans
 static GstFlowReturn
 gst_my_filter_transform(GstBaseTransform *trans, GstBuffer *in_buf, GstBuffer *out_buf)
 {
-  Charm_t *pre_op_value = NULL, *pre_op_value_bytes = NULL;
+  Charm_t *pre_op_value = NULL, *pre_op_value_bytes = NULL, *ct = NULL, *input_bytes = NULL;
   Py_ssize_t out_data_size;
   GstMyFilter *filter = GST_MYFILTER(trans);
-  if (!filter->silent)
-    g_print("I'm in the transform function\n");
   GstMapInfo in_map, out_map;
   gst_buffer_map(in_buf, &in_map, GST_MAP_READ);
   gst_buffer_map(out_buf, &out_map, GST_MAP_WRITE);
-  PyObject *msg_bytes = PyBytes_FromStringAndSize(in_map.data, in_map.size);
-  // Py_ssize_t size = PyBytes_Size(msg_bytes);
+
+  // Create python bytes from the input
+  input_bytes = PyBytes_FromStringAndSize(in_map.data, in_map.size);
   if (filter->mode == PRE_ENCRYPT)
   {
-    pre_op_value = CallMethod(filter->scheme, "encrypt_lvl2", "%O%O%O%$s", filter->params, filter->pk, msg_bytes, "l", "2018");
+    pre_op_value = CallMethod(filter->scheme, "encrypt_lvl2", "%O%O%O%$s", filter->params, filter->pk, input_bytes, "l", "2018"); //PRE encrypt lvl2
+    pre_op_value_bytes = objectToBytes(pre_op_value, filter->group); //Serialize lvl 2 ciphertext to bytes
   }
   else if (filter->mode == PRE_DECRYPT)
   {
-    CallMethod(filter->scheme, "decrypt_lvl1", "%O%O", filter->params, filter->sk, NULL);
+    ct = bytesToObject(input_bytes, filter->group); //De-serialize bytes into lvl 1 ciphertext
+    pre_op_value_bytes = CallMethod(filter->scheme, "decrypt_lvl1", "%O%O%O", filter->params, filter->sk, ct); //PRE decrypt lvl1
   }
   else if(filter->mode == PRE_RE_ENCRYPT)
   {
-    CallMethod(filter->scheme, "re_encrypt", "");
+    ct = bytesToObject(input_bytes, filter->group); //De-serialize bytes into lvl 2 ciphertext
+    pre_op_value = CallMethod(filter->scheme, "re_encrypt", "%O%O%O", filter->params, filter->rk, ct); //PRE re-encrypt
+    pre_op_value_bytes = objectToBytes(pre_op_value, filter->group); //Serialize lvl 1 ciphertext to bytes
   }
   else{
-    g_print("Invalid PRE mode.\n");
+    g_printerr("Invalid PRE mode.\n");
     return GST_FLOW_ERROR;
   }
-  pre_op_value_bytes = objectToBytes(pre_op_value, filter->group);
-  char sucessful = PyBytes_AsStringAndSize(pre_op_value_bytes, &out_map.data, &out_data_size) != -1;
+  // Extract string from the python bytes object (result from the PRE operation)
+  char *pre_op_value_string;
+  char sucessful = PyBytes_AsStringAndSize(pre_op_value_bytes, &pre_op_value_string, &out_data_size) != -1;
+
+  // Copy the bytes into the output buffer
+  for(int i = 0; i < out_data_size; ++i){
+    out_map.data[i] = pre_op_value_string[i];
+  }
   gst_buffer_set_size(out_buf, out_data_size);
   gst_buffer_unmap(in_buf, &in_map);
   gst_buffer_unmap(out_buf, &out_map);
   return GST_FLOW_OK;
-  // if (gst_buffer_copy_into(out_buf, in_buf, GST_BUFFER_COPY_ALL, 0, -1)) return GST_FLOW_OK;
-  // return GST_FLOW_ERROR;
 }
 
 /* entry point to initialize the plug-in

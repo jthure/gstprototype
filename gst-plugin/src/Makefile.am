@@ -40,4 +40,5 @@ libgstmyfilter_la_LIBTOOLFLAGS = --tag=disable-static
 # libgstaudiofilterexample_la_LIBTOOLFLAGS = --tag=disable-static
 
 # headers we need but don't want installed
+# include_HEADERS = gstmyfilter.h charm_embed_api.h
 noinst_HEADERS = gstmyfilter.h charm_embed_api.h
