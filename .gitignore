@@ -53,3 +53,8 @@ dkms.conf
 
 *.deps/
 
+.vscode/c_cpp_properties.json
+.vscode/settings.json
+compile
+
+

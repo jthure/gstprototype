@@ -12,5 +12,7 @@ ltmain.sh
 missing
 stamp-*
 my-plugin-*.tar.*
+.libs
+.deps
 *~
 
