@@ -15,10 +15,10 @@ rk_ab_2018 = scheme.re_keygen(params, sk_a, pk_b, l='2018')
 rk_ab_2017 = scheme.re_keygen(params, sk_a, pk_b, l='2017')
 rk_ac_2018 = scheme.re_keygen(params, sk_a, pk_c, l='2018')
 
-i = ord('A')
-for pk, sk in [(pk_a, sk_a), (pk_b, sk_b), (pk_c, sk_c), (pk_d, sk_d)]:
-    print("PK_" + chr(i) + ':', objectToBytes(pk, group))
-    print("SK_" + chr(i) + ':', objectToBytes(sk, group))
-    i += 1
-for rk, a, b, t in [(rk_ab_2018, 'A', 'B', '2018'), (rk_ab_2017, 'A', 'B', '2017'), (rk_ab_2018, 'A', 'C', '2018')]:
-    print('RK_' + a + '->' + b + '_' + t + ':', objectToBytes(rk, group))
+print("const char *params" + ' = "' + objectToBytes(params, group).decode('ascii') + '";')
+for pk, sk, i in [(pk_a, sk_a, 'a'), (pk_b, sk_b, 'b'), (pk_c, sk_c, 'c'), (pk_d, sk_d, 'd')]:
+    print("const char *pk_" + i + ' = "' + objectToBytes(pk, group).decode('ascii') + '";')
+    print("const char *sk_" + i + ' = "' + objectToBytes(sk, group).decode('ascii') + '";')
+
+for rk, a, b, t in [(rk_ab_2018, 'a', 'b', '2018'), (rk_ab_2017, 'a', 'b', '2017'), (rk_ab_2018, 'a', 'c', '2018')]:
+    print("const char *rk_" + a + b + '_' + t + ' = "' + objectToBytes(rk, group).decode('ascii') + '";')
