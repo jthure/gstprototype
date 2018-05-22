@@ -127,7 +127,7 @@ play_uri (const gchar * uri)
   // g_object_set (playbin, "uri", uri, NULL);
   // g_object_set (source, "uri", uri, NULL);
 
-  // GST_DEBUG_BIN_TO_DOT_FILE(playbin, GST_DEBUG_GRAPH_SHOW_ALL, "playbin");
+  GST_DEBUG_BIN_TO_DOT_FILE(pipeline, GST_DEBUG_GRAPH_SHOW_ALL, "pipeline");
 
   /* and GO GO GO! */
   // gst_element_set_state (GST_ELEMENT (playbin), GST_STATE_PLAYING);
